@@ -1,0 +1,2235 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debarshi Bose | Structural Biochemistry, Photobiology & Computational Biophysics</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Space Grotesk, Inter, JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- 3Dmol.js for Live Interactive WebGL Protein Rendering -->
+    <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        obsidian: '#060911',
+                        slateDeep: '#0c1220',
+                        slateCard: '#111a2e',
+                        fmnCyan: '#00f5d4',
+                        lovBlue: '#38bdf8',
+                        afVeryHigh: '#0053d6',
+                        afConfident: '#65cbf3',
+                        afLow: '#ffdb13',
+                        afVeryLow: '#ff7d45'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg-primary: #060911;
+            --bg-secondary: #0c1220;
+            --bg-card: rgba(17, 26, 46, 0.78);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(56, 189, 248, 0.16);
+            --accent-cyan: #00f5d4;
+            --accent-blue: #38bdf8;
+        }
+
+        html.light {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #f1f5f9;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --border-color: rgba(15, 23, 42, 0.12);
+            --accent-cyan: #0d9488;
+            --accent-blue: #0284c7;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Subtle Scientific Grid Overlay (solab.org signature style) */
+        .scientific-grid {
+            background-size: 38px 38px;
+            background-image: 
+                linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+        }
+
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-color);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(0, 245, 212, 0.38);
+            box-shadow: 0 12px 32px -10px rgba(0, 245, 212, 0.12);
+        }
+
+        /* Photoactivation Pulse Animation */
+        @keyframes fmnPulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.3), inset 0 0 15px rgba(0, 245, 212, 0.15); }
+            50% { box-shadow: 0 0 35px rgba(56, 189, 248, 0.75), inset 0 0 28px rgba(0, 245, 212, 0.4); }
+        }
+        .lit-state-active {
+            animation: fmnPulse 2s infinite;
+            border-color: #38bdf8 !important;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #060911;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f5d4;
+        }
+
+        /* 3Dmol container positioning fix */
+        #molViewerContainer {
+            position: relative;
+            width: 100%;
+            height: 440px;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #111c35 0%, #070b14 100%);
+        }
+        #molViewerContainer canvas {
+            border-radius: 0.75rem;
+        }
+
+        /* Page Transition Animation */
+        .page-view {
+            display: none;
+            animation: fadeSlideIn 0.32s ease-out forwards;
+        }
+        .page-view.active {
+            display: block;
+        }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="scientific-grid min-h-screen flex flex-col selection:bg-fmnCyan selection:text-obsidian">
+
+    <!-- ===================================================================== -->
+    <!-- CENTRALIZED DATA STORE (DEBARSHI BOSE CV + GITHUB PROFILE)            -->
+    <!-- ===================================================================== -->
+    <script id="site-data-script">
+        window.SITE_DATA = {
+            profile: {
+                name: "Debarshi Bose",
+                handle: "dbose",
+                labBrand: "dbose // structural biophysics",
+                role: "Postgraduate Researcher in Structural Biochemistry & Computational Biophysics",
+                institution: "Presidency University, Kolkata, India",
+                solabStream: "from sequences ➔ photochemistry ➔ conformational dynamics ➔ optogenetic scaffolds ➔ all-atom simulations",
+                bioSummary: "Investigating the molecular choreography of blue-light photoreceptors (Aureochromes & LOV/PAS domains) and transcription factors. My work bridges wet-lab protein engineering (rational mutagenesis, IMAC/SEC purification, fluorescence & UV-Vis spectroscopy, EMSA) with computational biophysics (all-atom MD in GROMACS, molecular docking, and Langevin polymer dynamics).",
+                location: "Kolkata, West Bengal, India",
+                email: "dbose2709@gmail.com",
+                orcid: "0009-0002-3014-1771",
+                github: "https://github.com/DB03-biology",
+                linkedin: "https://linkedin.com/in/bosedebarshi03",
+                scholar: "https://scholar.google.com/citations?user=",
+                statusText: "Structural Biochemistry & Optogenetics Lab • Presidency University, Kolkata"
+            },
+            metrics: [
+                { label: "CSIR-UGC NET JRF", value: "AIR 26", sub: "99.92 Percentile (2026)" },
+                { label: "M.Sc. Life Sciences", value: "9.40 / 10", sub: "Presidency University (2025–2027)" },
+                { label: "IIT-JAM Biotech", value: "AIR 98", sub: "Top 1% Nationwide (2025)" },
+                { label: "Publications", value: "2 + 2", sub: "2 Peer-Reviewed + 2 Acknowledged" }
+            ],
+            news: [
+                {
+                    date: "2026",
+                    badge: "FELLOWSHIP",
+                    title: "All India Rank 26 (99.92%ile) in Joint CSIR-UGC NET JRF",
+                    desc: "Awarded the prestigious Junior Research Fellowship & Assistant Professor Eligibility by the Govt. of India."
+                },
+                {
+                    date: "2026",
+                    badge: "PUBLICATION",
+                    title: "First-Author Review in Algal Research (Elsevier)",
+                    desc: "Published 'From atoms to algae: Aureochromes in photobiology and optogenetics' (doi: 10.1016/j.algal.2026.104733), establishing an integrated Aureochrome activation model."
+                },
+                {
+                    date: "Aug 2026",
+                    badge: "OPEN SOURCE",
+                    title: "Released SDM-Primer-Design Pipeline on GitHub & Colab",
+                    desc: "Built an automated Python & Jupyter tool for designing site-directed mutagenesis primers with mismatch Tm and GC-clamp optimization."
+                },
+                {
+                    date: "Feb 2026",
+                    badge: "CONFERENCE",
+                    title: "Poster Presentation at Mech2Med, IIT Kharagpur",
+                    desc: "Presented research at the International Conference on 'Emerging Trends in Disease Biology: Mechanisms to Medicine'."
+                },
+                {
+                    date: "Dec 2025",
+                    badge: "PUBLICATION",
+                    title: "Co-Authored Research Article in Journal of Structural Biology",
+                    desc: "Published 'Decoding sequence-structure-function-evolution of basic leucine zippers of aureochromes from heterokont algae' (doi: 10.1016/j.jsb.2025.108283)."
+                },
+                {
+                    date: "2025",
+                    badge: "HONORS",
+                    title: "Qualified TIFR-JGEEBILS & IIT-JAM (AIR 98)",
+                    desc: "Offered Integrated PhD admission at IISER Pune and ranked in the top 1% nationally in IIT-JAM Biotechnology."
+                }
+            ],
+            frontiers: [
+                {
+                    num: "01",
+                    title: "PROTEIN STRUCTURE & ALLOSTERY",
+                    subtitle: "Residue-Level Conformational Switching & Signal Transduction",
+                    description: "Linking specific amino acid residues, phylogenetic class-switching motifs, and ionic environments to large-scale conformational switching in photoreceptors and DNA-binding transcription factors. Combining all-atom molecular dynamics (GROMACS) and residue contact networks with in vitro EMSA and spectroscopy.",
+                    tags: ["Allostery", "Aureochromes", "bZIP-DNA Complex", "GROMACS MD", "EMSA Validation"],
+                    highlightMetric: "Proved functional role of a unique class-switching His residue in Ectocarpus siliculosus Aureochrome bZIP DNA binding."
+                },
+                {
+                    num: "02",
+                    title: "NEXT-GENERATION OPTOGENETIC TOOLS",
+                    subtitle: "Rational Tuning of LOV & PAS Photoreceptor Scaffolds",
+                    description: "Engineering novel LOV-domain fluorophores and optogenetic switches with tunable photocycle kinetics, improved fluorescence quantum yield, and altered FMN-chromophore interactions via rational site-directed mutagenesis, IMAC/SEC purification, and photophysical characterization.",
+                    tags: ["LOV Domain", "FMN Photochemistry", "Rational Mutagenesis", "Quantum Yield", "Optogenetics"],
+                    highlightMetric: "Engineered LOV variants exhibiting enhanced quantum yield and modulated adduct-decay kinetics."
+                },
+                {
+                    num: "03",
+                    title: "PREDICTION & VALIDATION AS ONE LOOP",
+                    subtitle: "Closing the In Silico ⇄ Wet-Lab Feedback Cycle",
+                    description: "Treating AlphaFold/Rosetta structural modeling, HADDOCK/AutoDock Vina docking, and Langevin polymer physics not as isolated computations, but as a continuous loop directly tested at the bench through chromatography, FRET, and steady-state/time-resolved spectroscopy.",
+                    tags: ["AlphaFold / Rosetta", "HADDOCK", "Langevin Dynamics", "IMAC & SEC", "FRET & UV-Vis"],
+                    highlightMetric: "Developed custom C-based Langevin dynamics biopolymer code alongside wet-lab biophysical validation."
+                }
+            ],
+            education: [
+                {
+                    degree: "M.Sc. in Life Sciences",
+                    school: "Presidency University, Kolkata, India",
+                    period: "2025 – 2027",
+                    score: "CGPA: 9.40 / 10.00",
+                    details: "Master's thesis research on ionic strength & salt concentration effects on LOV-FMN photochemistry and PAS domain dynamics."
+                },
+                {
+                    degree: "B.Sc. (Hons.) in Life Sciences",
+                    school: "Presidency University, Kolkata, India",
+                    period: "2022 – 2025",
+                    score: "GPA: 8.95 / 10.00",
+                    details: "Undergraduate research in structural biochemistry, optogenetics, and computational biophysics."
+                }
+            ],
+            experience: [
+                {
+                    role: "Postgraduate Research Assistant",
+                    lab: "Structural Biochemistry & Optogenetics Lab — Presidency University, Kolkata",
+                    pi: "Dr. Devrani Mitra",
+                    period: "Sept. 2025 – Present",
+                    type: "Wet Lab & Biophysics",
+                    bullets: [
+                        "Published a first-author review in Algal Research, Elsevier (2026), establishing an Aureochrome activation model.",
+                        "Engineering a novel LOV-domain fluorophore via rational mutagenesis; purifying and characterizing variants to validate structural tuning principles using IMAC, gel filtration (SEC), and fluorescence/UV-Vis spectroscopy.",
+                        "Investigating salt concentration effects on LOV-FMN photochemistry and the PAS domain for master's thesis research."
+                    ]
+                },
+                {
+                    role: "Researcher — Value Added Course (VAC) Project",
+                    lab: "Department of Life Sciences — Presidency University, Kolkata",
+                    pi: "Structural Biochemistry Group",
+                    period: "Aug. 2024 – Present",
+                    type: "Protein Engineering",
+                    bullets: [
+                        "Engineered a novel LOV-domain fluorophore with unique kinetic properties by altering FMN-binding pocket interactions using rational mutagenesis.",
+                        "Purified variants via IMAC and Gel-Filtration chromatography and characterized photophysical properties using fluorescence & UV-Vis spectroscopy, achieving improved quantum yield and altered fluorescence kinetics."
+                    ]
+                },
+                {
+                    role: "Research Assistant (Literature Synthesis)",
+                    lab: "Cancer Proteogenomics Lab — Presidency University, Kolkata",
+                    pi: "Dr. Sutapa Saha",
+                    period: "Dec. 2024 – Apr. 2025",
+                    type: "Translational Oncology",
+                    bullets: [
+                        "Evaluated emerging molecular oncology literature to synthesize alternative therapeutic strategy frameworks across 50+ academic papers.",
+                        "Submitted a comprehensive review paper summarizing the proteogenomic findings for peer review."
+                    ]
+                },
+                {
+                    role: "Summer Research Fellowship (IASc-INSA-NASI SRFP)",
+                    lab: "Computational Molecular Biophysics Lab — Jawaharlal Nehru University (JNU), New Delhi",
+                    pi: "Dr. Arnab Bhattacharjee",
+                    period: "Jun. 2024 – Jul. 2024",
+                    type: "Computational Physics",
+                    bullets: [
+                        "Project: 'Understanding Active Biopolymer System Using Molecular Dynamics Simulation'.",
+                        "Developed in-house simulation code in C from scratch to model and simulate a bonded chain of particles.",
+                        "Analyzed thermodynamic trajectories, thermal energy distributions, diffusion coefficients, and implemented an implicit solvation model using Langevin dynamics."
+                    ]
+                },
+                {
+                    role: "Undergraduate Research Assistant",
+                    lab: "Structural Biochemistry & Optogenetics Lab — Presidency University, Kolkata",
+                    pi: "Dr. Devrani Mitra",
+                    period: "Jan. 2023 – May 2024",
+                    type: "In Silico & Wet Lab",
+                    bullets: [
+                        "Performed in silico characterization of the bZIP domain of Ectocarpus siliculosus (stramenopile algae) photoreceptor/transcription factor Aureochromes using molecular docking and all-atom protein-DNA simulations.",
+                        "Executed molecular cloning, bacterial overexpression, and protein purification.",
+                        "Proved the functional role of a phylogenetic class-switching unique Histidine residue in the DNA-binding region using site-directed mutagenesis and EMSA validation (Published in Journal of Structural Biology, Dec 2025)."
+                    ]
+                }
+            ],
+            publications: [
+                {
+                    id: "pub-2026-algal",
+                    type: "Peer-Reviewed Article",
+                    year: "2026",
+                    title: "From atoms to algae: Aureochromes in photobiology and optogenetics",
+                    authors: "Bose, D., Ghosh, A., Khamaru, M. & Mitra, D.",
+                    journal: "Algal Research (Elsevier)",
+                    doi: "10.1016/j.algal.2026.104733",
+                    url: "https://doi.org/10.1016/j.algal.2026.104733",
+                    roleBadge: "First Author",
+                    tags: ["Aureochromes", "Optogenetics", "LOV Domain", "Photobiology"],
+                    abstract: "A comprehensive structural and mechanistic synthesis of Aureochromes—unique blue-light receptor transcription factors found in photosynthetic stramenopiles featuring an inverted N-terminal bZIP and C-terminal LOV domain topology. Establishes a unified allosteric activation model connecting FMN cysteinyl-adduct formation to homodimerization and DNA binding, alongside engineering guidelines for synthetic optogenetic scaffolds.",
+                    bibtex: `@article{Bose2026Aureochromes,\n  author = {Bose, Debarshi and Ghosh, A. and Khamaru, M. and Mitra, Devrani},\n  title = {From atoms to algae: Aureochromes in photobiology and optogenetics},\n  journal = {Algal Research},\n  year = {2026},\n  doi = {10.1016/j.algal.2026.104733}\n}`
+                },
+                {
+                    id: "pub-2025-jsb",
+                    type: "Peer-Reviewed Article",
+                    year: "2025",
+                    title: "Decoding sequence-structure-function-evolution of basic leucine zippers of aureochromes from heterokont algae",
+                    authors: "Khamaru, M., Bose, D., Deb, A., & Mitra, D.",
+                    journal: "Journal of Structural Biology (Elsevier)",
+                    doi: "10.1016/j.jsb.2025.108283",
+                    url: "https://doi.org/10.1016/j.jsb.2025.108283",
+                    roleBadge: "Co-Author",
+                    tags: ["bZIP Domain", "Protein-DNA MD", "Mutagenesis", "EMSA", "Evolution"],
+                    abstract: "Integrates phylogenetic sequence analysis, molecular docking, all-atom protein-DNA molecular dynamics simulations, and wet-lab site-directed mutagenesis with Electrophoretic Mobility Shift Assays (EMSA) to decode DNA recognition specificity in heterokont algal aureochromes. Demonstrates the functional significance of a class-switching Histidine residue at the DNA-binding interface.",
+                    bibtex: `@article{Khamaru2025bZIP,\n  author = {Khamaru, M. and Bose, Debarshi and Deb, A. and Mitra, Devrani},\n  title = {Decoding sequence-structure-function-evolution of basic leucine zippers of aureochromes from heterokont algae},\n  journal = {Journal of Structural Biology},\n  year = {2025},\n  doi = {10.1016/j.jsb.2025.108283}\n}`
+                },
+                {
+                    id: "ack-2025-pps",
+                    type: "Acknowledged Contribution",
+                    year: "2025",
+                    title: "FeSBCP Analogue from Cyanobacteria: Insights from in vitro and in silico Studies",
+                    authors: "Mitra Lab et al. (Acknowledged: Debarshi Bose)",
+                    journal: "Photochemical & Photobiological Sciences (2025; 24: 2095–2108)",
+                    doi: "10.1007/s43630-025-00814-8",
+                    url: "https://doi.org/10.1007/s43630-025-00814-8",
+                    roleBadge: "Kd Analysis & Visualization",
+                    tags: ["Kd Calculation", "Data Analysis", "Cyanobacteria", "bioRxiv: 10.1101/2025.08.30.673201"],
+                    abstract: "Formally acknowledged for contributions to quantitative binding data analysis, dissociation constant (Kd) fitting, and scientific figure generation.",
+                    bibtex: `@article{FeSBCP2025,\n  title = {FeSBCP Analogue from Cyanobacteria: Insights from in vitro and in silico Studies},\n  journal = {Photochem. Photobiol. Sci.},\n  volume = {24},\n  pages = {2095--2108},\n  year = {2025},\n  doi = {10.1007/s43630-025-00814-8}\n}`
+                },
+                {
+                    id: "ack-2025-biorxiv",
+                    type: "Acknowledged Contribution",
+                    year: "2025",
+                    title: "Random Mutagenesis for the Generation of Repertoire of Aureochrome-based Optogenetic Scaffolds",
+                    authors: "Mitra Lab et al. (Acknowledged: Debarshi Bose)",
+                    journal: "bioRxiv Preprint",
+                    doi: "10.64898/2025.12.26.696586",
+                    url: "https://doi.org/10.64898/2025.12.26.696586",
+                    roleBadge: "Kd & Experimental Input",
+                    tags: ["Random Mutagenesis", "Optogenetic Scaffolds", "Kd Fitting"],
+                    abstract: "Formally acknowledged for contributions to dissociation constant (Kd) calculation, biophysical data analysis, experimental assistance, and academic input.",
+                    bibtex: `@article{AureoRepertoire2025,\n  title = {Random Mutagenesis for the Generation of Repertoire of Aureochrome-based Optogenetic Scaffolds},\n  journal = {bioRxiv},\n  year = {2025},\n  doi = {10.64898/2025.12.26.696586}\n}`
+                }
+            ],
+            repositories: [
+                {
+                    name: "SDM-Primer-Design",
+                    lang: "Jupyter Notebook / Python",
+                    langColor: "#f59e0b",
+                    url: "https://github.com/DB03-biology/SDM-Primer-Design",
+                    colabBadge: true,
+                    description: "Automated Site-Directed Mutagenesis (SDM) primer designer for rational protein engineering. Computes mismatch-corrected melting temperatures (Tm), GC%, 5'/3' GC-clamps, and codon replacements.",
+                    topics: ["site-directed-mutagenesis", "protein-engineering", "python", "primer-design", "colab"]
+                },
+                {
+                    name: "MDSimulation_PolymerChain",
+                    lang: "C / Gnuplot",
+                    langColor: "#38bdf8",
+                    url: "https://github.com/DB03-biology/MDSimulation_PolymerChain",
+                    colabBadge: false,
+                    description: "In-house Molecular & Langevin Dynamics simulation engine written in C during the IASc Summer Research Fellowship at JNU. Models active/passive bonded biopolymer chains, velocity-Verlet integration, thermal distributions, and MSD diffusion.",
+                    topics: ["molecular-dynamics", "langevin-dynamics", "biopolymers", "c-programming", "statistical-physics"]
+                },
+                {
+                    name: "Sequence-Alignment_Phylogeny",
+                    lang: "Python",
+                    langColor: "#00f5d4",
+                    url: "https://github.com/DB03-biology/Sequence-Alignment_Phylogeny",
+                    colabBadge: false,
+                    description: "Computational biology workflows for multiple sequence alignment, evolutionary conservation mapping, and phylogenetic tree reconstruction across photoreceptor families.",
+                    topics: ["phylogenetics", "sequence-alignment", "bioinformatics", "evolution"]
+                }
+            ],
+            skills: {
+                wetLab: [
+                    { category: "Molecular Biology", items: ["Genomic & Plasmid DNA Isolation", "Molecular Cloning", "PCR & Site-Directed Mutagenesis", "Agarose & SDS/Native PAGE"] },
+                    { category: "Protein Purification & Crystallography", items: ["Bacterial Overexpression & Lysis", "IMAC (Ni-NTA Affinity)", "Size-Exclusion (Gel Filtration)", "Ion-Exchange Chromatography", "Crystallographic Setup"] },
+                    { category: "Biophysical & Interaction Assays", items: ["EMSA (Protein-DNA Shift)", "FRET", "Fluorescence Spectroscopy", "UV-Vis Absorption Kinetics", "Fluorescence & Light Microscopy"] }
+                ],
+                computational: [
+                    { category: "3D Structure & Visualization", items: ["PyMOL", "VMD", "UCSF ChimeraX", "LigPlot+", "ChemDraw"] },
+                    { category: "Modeling, Docking & AI Folding", items: ["AlphaFold2 / ColabFold", "Rosetta", "HADDOCK", "AutoDock Vina"] },
+                    { category: "Molecular Dynamics & Programming", items: ["GROMACS (Apo / Protein-DNA / Ligand)", "Python", "C Language", "RStudio", "Bash / Shell Scripting", "Gnuplot & LaTeX"] }
+                ]
+            },
+            beyondLab: [
+                {
+                    title: "Wildlife Study, Conservation & Photography",
+                    icon: "fa-paw",
+                    badge: "Manas (2026) & Bandhavgarh (2023)",
+                    description: "Field biodiversity excursions to Manas National Park (India & Bhutan transboundary ecosystem, 2026) and Bandhavgarh Tiger Reserve (2023). Organizing Member & Attendee for World Wildlife Day at Presidency University (Sponsored by Nikon). Passionate about avian & wildlife photography."
+                },
+                {
+                    title: "High-Altitude Public Health & Physiological Camp",
+                    icon: "fa-heart-pulse",
+                    badge: "West Sikkim Outreach (2025)",
+                    description: "Conducted community physiological screening, hematological testing, blood pressure tracking, anthropometric profiling, and dietary assessment across remote Himalayan villages in Okhrey–Hilley–Barsey, West Sikkim. Also an active NSS Student Volunteer leading slum hygiene & dementia awareness drives."
+                },
+                {
+                    title: "Competitive Chess (Lichess 1438)",
+                    icon: "fa-chess-knight",
+                    badge: "Tactical & Positional Play",
+                    description: "Active tactical chess player with a Lichess Mean Rating of 1438. Enjoys analyzing combinatorial endgames and rapid time controls between wet-lab incubations."
+                },
+                {
+                    title: "Fine Arts, Music & Mystery Fiction",
+                    icon: "fa-guitar",
+                    badge: "Bangiya Sangeet Parishad (3rd Yr)",
+                    description: "Intermediate acoustic/electric guitarist and choral vocalist. Qualified 3rd Year in Drawing from Bangiya Sangeet Parishad, blending visual artistry with scientific structural illustration—plus an avid reader of Agatha Christie detective fiction."
+                }
+            ]
+        };
+    </script>
+
+    <!-- ===================================================================== -->
+    <!-- TOP STICKY NAVIGATION BAR (SOLAB.ORG INSPIRED)                        -->
+    <!-- ===================================================================== -->
+    <header class="sticky top-0 z-50 border-b border-sky-500/15 bg-obsidian/85 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+            <!-- Brand Identity -->
+            <a href="#overview" onclick="switchPage('overview')" class="flex items-center gap-3 group focus:outline-none">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-fmnCyan/20 to-lovBlue/20 border border-fmnCyan/40 flex items-center justify-center shadow-inner group-hover:scale-105 transition">
+                    <i class="fa-solid fa-dna text-fmnCyan text-sm"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span id="nav-brand-name" class="font-mono font-bold tracking-tight text-base text-white group-hover:text-fmnCyan transition">dbose</span>
+                        <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-fmnCyan/10 text-fmnCyan border border-fmnCyan/30">BIOPHYSICS</span>
+                    </div>
+                    <p class="text-[11px] font-mono text-slate-400 hidden sm:block">Structural Biochemistry & Biophysics</p>
+                </div>
+            </a>
+
+            <!-- Multipage Navigation Tabs -->
+            <nav class="hidden md:flex items-center gap-1 bg-slateDeep/90 p-1 rounded-xl border border-slate-800">
+                <button onclick="switchPage('overview')" data-nav="overview" class="nav-tab px-3.5 py-1.5 rounded-lg font-mono text-xs transition flex items-center gap-1.5 bg-fmnCyan/15 text-fmnCyan border border-fmnCyan/30">
+                    <span class="opacity-60">01</span> Overview
+                </button>
+                <button onclick="switchPage('research')" data-nav="research" class="nav-tab px-3.5 py-1.5 rounded-lg font-mono text-xs text-slate-300 hover:text-white transition flex items-center gap-1.5">
+                    <span class="opacity-60">02</span> Research
+                </button>
+                <button onclick="switchPage('publications')" data-nav="publications" class="nav-tab px-3.5 py-1.5 rounded-lg font-mono text-xs text-slate-300 hover:text-white transition flex items-center gap-1.5">
+                    <span class="opacity-60">03</span> Publications
+                </button>
+                <button onclick="switchPage('suite')" data-nav="suite" class="nav-tab px-3.5 py-1.5 rounded-lg font-mono text-xs text-slate-300 hover:text-white transition flex items-center gap-1.5">
+                    <span class="opacity-60">04</span> Code & Lab Suite
+                </button>
+                <button onclick="switchPage('beyond')" data-nav="beyond" class="nav-tab px-3.5 py-1.5 rounded-lg font-mono text-xs text-slate-300 hover:text-white transition flex items-center gap-1.5">
+                    <span class="opacity-60">05</span> Beyond Lab
+                </button>
+            </nav>
+
+            <!-- Public Action Controls: GitHub Link & Theme Toggle -->
+            <div class="flex items-center gap-2">
+                <a href="https://github.com/DB03-biology" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg font-mono text-xs bg-slateDeep hover:bg-slate-800 text-fmnCyan border border-fmnCyan/30 flex items-center gap-1.5 transition" title="GitHub Profile (DB03-biology)">
+                    <i class="fa-brands fa-github text-sm"></i>
+                    <span class="hidden sm:inline">DB03-biology</span>
+                </a>
+                <button onclick="toggleTheme()" id="themeToggleBtn" class="w-8 h-8 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 flex items-center justify-center border border-slate-700 transition" title="Toggle Dark/Light Mode">
+                    <i class="fa-solid fa-sun text-xs"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Bar -->
+        <div class="flex md:hidden overflow-x-auto px-4 py-2 gap-1.5 border-t border-slate-800/80 bg-obsidian/95">
+            <button onclick="switchPage('overview')" data-nav="overview" class="nav-tab-mobile shrink-0 px-3 py-1 rounded-md font-mono text-xs bg-fmnCyan/15 text-fmnCyan border border-fmnCyan/30">01•Overview</button>
+            <button onclick="switchPage('research')" data-nav="research" class="nav-tab-mobile shrink-0 px-3 py-1 rounded-md font-mono text-xs text-slate-400">02•Research</button>
+            <button onclick="switchPage('publications')" data-nav="publications" class="nav-tab-mobile shrink-0 px-3 py-1 rounded-md font-mono text-xs text-slate-400">03•Publications</button>
+            <button onclick="switchPage('suite')" data-nav="suite" class="nav-tab-mobile shrink-0 px-3 py-1 rounded-md font-mono text-xs text-slate-400">04•Lab Suite</button>
+            <button onclick="switchPage('beyond')" data-nav="beyond" class="nav-tab-mobile shrink-0 px-3 py-1 rounded-md font-mono text-xs text-slate-400">05•Beyond</button>
+        </div>
+    </header>
+
+    <!-- ===================================================================== -->
+    <!-- MAIN MULTIPAGE CONTAINER                                              -->
+    <!-- ===================================================================== -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ================================================================= -->
+        <!-- PAGE 01: OVERVIEW (HERO + INTERACTIVE 3DMOL + NEWS + METRICS)     -->
+        <!-- ================================================================= -->
+        <div id="page-overview" class="page-view active space-y-12">
+
+            <!-- Solab.org Inspired Hero Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+                <!-- Left 7 Columns: Identity, Stream-of-Consciousness Tagline, Links & Metrics -->
+                <div class="lg:col-span-7 space-y-6">
+                    <!-- Status Pill -->
+                    <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slateDeep border border-fmnCyan/30 text-xs font-mono text-fmnCyan">
+                        <span class="w-2 h-2 rounded-full bg-fmnCyan animate-ping"></span>
+                        <span id="hero-status"></span>
+                    </div>
+
+                    <!-- Solab.org Signature Lowercase Stream Header -->
+                    <div class="space-y-3">
+                        <p id="hero-stream" class="font-mono text-xs sm:text-sm text-lovBlue tracking-wide uppercase"></p>
+                        <h1 id="hero-name" class="font-display text-4xl sm:text-6xl font-bold tracking-tight text-white leading-none"></h1>
+                        <p id="hero-role" class="text-lg sm:text-xl text-slate-300 font-medium"></p>
+                    </div>
+
+                    <!-- Bio Summary -->
+                    <p id="hero-bio" class="text-slate-300/90 leading-relaxed text-sm sm:text-base"></p>
+
+                    <!-- External Profile Links Bar -->
+                    <div id="hero-links" class="flex flex-wrap items-center gap-2.5 pt-1"></div>
+
+                    <!-- Key Quantitative Highlights (4 Cards) -->
+                    <div id="hero-metrics" class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2"></div>
+
+                    <!-- Quick Navigation Cards (solab.org Portal Style) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                        <button onclick="switchPage('research')" class="glass-card p-4 rounded-xl text-left group">
+                            <div class="flex items-center justify-between text-xs font-mono text-fmnCyan mb-1">
+                                <span>02 • FRONTIERS</span>
+                                <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                            </div>
+                            <div class="font-display font-semibold text-white text-sm">Allostery, LOV & MD</div>
+                            <p class="text-xs text-slate-400 mt-1">Explore contact maps & polymer dynamics</p>
+                        </button>
+                        <button onclick="switchPage('publications')" class="glass-card p-4 rounded-xl text-left group">
+                            <div class="flex items-center justify-between text-xs font-mono text-lovBlue mb-1">
+                                <span>03 • PAPERS</span>
+                                <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                            </div>
+                            <div class="font-display font-semibold text-white text-sm">Algal Res. & J. Struct. Biol.</div>
+                            <p class="text-xs text-slate-400 mt-1">Read abstracts, DOIs & copy BibTeX</p>
+                        </button>
+                        <button onclick="switchPage('suite')" class="glass-card p-4 rounded-xl text-left group">
+                            <div class="flex items-center justify-between text-xs font-mono text-amber-400 mb-1">
+                                <span>04 • BENCH SUITE</span>
+                                <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                            </div>
+                            <div class="font-display font-semibold text-white text-sm">Biophysics Calculators</div>
+                            <p class="text-xs text-slate-400 mt-1">Kd ⇄ ΔG, FMN Beer-Lambert & SDM Tm</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right 5 Columns: Interactive 3Dmol.js Protein Photoreceptor Workbench -->
+                <div class="lg:col-span-5">
+                    <div id="viewerCard" class="glass-card rounded-2xl p-4 border border-sky-500/25 shadow-2xl space-y-3">
+                        <!-- Top Bar of 3D Viewer -->
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-fmnCyan"></span>
+                                    <h2 class="font-mono text-xs font-bold uppercase tracking-wider text-white">Interactive 3D Structure Viewer</h2>
+                                </div>
+                                <p id="pdbTitleLabel" class="text-[11px] font-mono text-slate-400 mt-0.5">PDB: 3UE6 • Aureochrome-1 LOV Domain + FMN Chromophore</p>
+                            </div>
+                            <!-- Blue-Light 450nm Photoactivation Toggle -->
+                            <button onclick="toggleBlueLightExcitation()" id="blueLightBtn" class="px-2.5 py-1 rounded-lg font-mono text-[11px] bg-sky-500/15 hover:bg-sky-500/30 text-sky-300 border border-sky-400/40 flex items-center gap-1.5 transition">
+                                <i class="fa-solid fa-bolt text-sky-400"></i>
+                                <span id="blueLightBtnText">Excite 450nm (Dark State)</span>
+                            </button>
+                        </div>
+
+                        <!-- Preset PDB Switcher + Custom PDB Fetch -->
+                        <div class="flex flex-wrap items-center justify-between gap-1.5">
+                            <div class="flex flex-wrap gap-1">
+                                <button onclick="loadPdbStructure('3UE6', 'Aureochrome-1 LOV Domain (Ph. tricornutum)')" id="pdb-btn-3UE6" class="pdb-preset-btn px-2.5 py-1 rounded font-mono text-[11px] bg-fmnCyan/20 text-fmnCyan border border-fmnCyan/40">3UE6 (Aureo1 LOV)</button>
+                                <button onclick="loadPdbStructure('2V0W', 'Avena sativa LOV2 Optogenetic Switch')" id="pdb-btn-2V0W" class="pdb-preset-btn px-2.5 py-1 rounded font-mono text-[11px] bg-slate-800 text-slate-300 hover:text-white">2V0W (AsLOV2)</button>
+                                <button onclick="loadPdbStructure('1NWZ', 'Photoactive Yellow Protein (PAS Prototype)')" id="pdb-btn-1NWZ" class="pdb-preset-btn px-2.5 py-1 rounded font-mono text-[11px] bg-slate-800 text-slate-300 hover:text-white">1NWZ (PAS Core)</button>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <input id="customPdbInput" type="text" maxlength="4" placeholder="PDB ID" class="w-16 px-2 py-1 rounded bg-obsidian border border-slate-700 font-mono text-[11px] text-white uppercase focus:border-fmnCyan focus:outline-none">
+                                <button onclick="loadCustomPdb()" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono text-fmnCyan border border-slate-700">Fetch</button>
+                            </div>
+                        </div>
+
+                        <!-- WebGL 3Dmol Viewport -->
+                        <div id="molViewerContainer" class="border border-slate-800/90">
+                            <div id="molLoadingOverlay" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-obsidian/80 backdrop-blur-sm">
+                                <i class="fa-solid fa-circle-notch fa-spin text-2xl text-fmnCyan mb-2"></i>
+                                <span class="font-mono text-xs text-slate-300">Fetching coordinates from RCSB PDB...</span>
+                            </div>
+                        </div>
+
+                        <!-- Representation & Coloring Controls -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1">
+                            <button onclick="setMolStyle('cartoon')" class="px-2 py-1.5 rounded bg-slate-800/90 hover:bg-slate-700 font-mono text-[11px] text-slate-200 border border-slate-700">Cartoon + FMN</button>
+                            <button onclick="setMolStyle('plddt')" class="px-2 py-1.5 rounded bg-slate-800/90 hover:bg-slate-700 font-mono text-[11px] text-sky-300 border border-slate-700">pLDDT / B-Factor</button>
+                            <button onclick="setMolStyle('surface')" class="px-2 py-1.5 rounded bg-slate-800/90 hover:bg-slate-700 font-mono text-[11px] text-emerald-300 border border-slate-700">Pocket Surface</button>
+                            <button onclick="toggleMolSpin()" id="spinToggleBtn" class="px-2 py-1.5 rounded bg-fmnCyan/15 font-mono text-[11px] text-fmnCyan border border-fmnCyan/30">Spin: ON</button>
+                        </div>
+
+                        <!-- Photophysical Readout Footer -->
+                        <div id="photoReadoutBar" class="p-2.5 rounded-lg bg-obsidian/90 border border-slate-800 flex items-center justify-between text-[11px] font-mono">
+                            <span class="text-slate-400">State: <strong id="photostateLabel" class="text-emerald-400">Dark Ground State (LOV447)</strong></span>
+                            <span class="text-slate-400">λ<sub>max</sub>: <strong id="lambdaLabel" class="text-fmnCyan">447 nm (Non-covalent FMN)</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News & Lab Milestones Section (solab.org Home Feed Style) -->
+            <section class="space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div class="flex items-center gap-2.5">
+                        <span class="font-mono text-xs text-fmnCyan">01.A //</span>
+                        <h2 class="font-display text-xl font-bold text-white">Recent News & Academic Milestones</h2>
+                    </div>
+                    <span class="font-mono text-xs text-slate-400">2025 – 2026 Trajectory</span>
+                </div>
+                <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </section>
+
+            <!-- Education & Academic Foundation -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="flex items-center gap-2 border-b border-slate-800 pb-2.5">
+                        <span class="font-mono text-xs text-fmnCyan">01.B //</span>
+                        <h2 class="font-display text-xl font-bold text-white">Academic Formation</h2>
+                    </div>
+                    <div id="education-list" class="space-y-3"></div>
+                </div>
+
+                <div class="lg:col-span-7 space-y-4">
+                    <div class="flex items-center gap-2 border-b border-slate-800 pb-2.5">
+                        <span class="font-mono text-xs text-lovBlue">01.C //</span>
+                        <h2 class="font-display text-xl font-bold text-white">National Fellowships, Honors & Certifications</h2>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="glass-card p-4 rounded-xl border-l-4 border-l-fmnCyan">
+                            <div class="font-mono text-xs text-fmnCyan">2026 • GOVT. OF INDIA</div>
+                            <div class="font-display font-bold text-white mt-0.5">Joint CSIR-UGC NET Fellowship (JRF)</div>
+                            <p class="text-xs text-slate-300 mt-1">All India Rank 26 (99.92 Percentile) — Junior Research Fellowship & Assistant Professor Eligibility.</p>
+                        </div>
+                        <div class="glass-card p-4 rounded-xl border-l-4 border-l-lovBlue">
+                            <div class="font-mono text-xs text-lovBlue">2025 • NATIONAL EXAMS</div>
+                            <div class="font-display font-bold text-white mt-0.5">IIT-JAM (AIR 98) & TIFR-JGEEBILS</div>
+                            <p class="text-xs text-slate-300 mt-1">Top 1% in IIT-JAM Biotechnology; Qualified TIFR-JGEEBILS with Int-PhD offer from IISER Pune.</p>
+                        </div>
+                        <div class="glass-card p-4 rounded-xl border-l-4 border-l-amber-400">
+                            <div class="font-mono text-xs text-amber-400">2024 • THREE NATIONAL ACADEMIES</div>
+                            <div class="font-display font-bold text-white mt-0.5">IASc-INSA-NASI Summer Research Fellow</div>
+                            <p class="text-xs text-slate-300 mt-1">Selected for computational biophysics research at Jawaharlal Nehru University (JNU), New Delhi.</p>
+                        </div>
+                        <div class="glass-card p-4 rounded-xl border-l-4 border-l-purple-400">
+                            <div class="font-mono text-xs text-purple-400">SCHOLARSHIP & CERTIFICATIONS</div>
+                            <div class="font-display font-bold text-white mt-0.5">SVMCM Scholar, NPTEL & IELTS 7.5</div>
+                            <p class="text-xs text-slate-300 mt-1">NPTEL Structural Biology (IIT Roorkee), CRISPR & Genetics (IIT Bhubaneswar), IELTS Band 7.5.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- PAGE 02: RESEARCH (SOLAB.ORG FRONTIERS + CONTACT MAP + LANGEVIN)  -->
+        <!-- ================================================================= -->
+        <div id="page-research" class="page-view space-y-12">
+
+            <!-- Header -->
+            <div class="border-b border-slate-800 pb-5 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <span class="font-mono text-xs text-fmnCyan uppercase tracking-widest">02 • Research Program</span>
+                    <h1 class="font-display text-3xl sm:text-4xl font-bold text-white mt-1">Three Interlocking Frontiers in Structural Biophysics</h1>
+                </div>
+                <p class="font-mono text-xs text-slate-400 max-w-md">Inspired by solab.org/research: combining evolutionary sequence signals, allosteric biophysics, and rational photoreceptor design.</p>
+            </div>
+
+            <!-- 3 Numbered Research Pillars -->
+            <div id="frontiers-container" class="grid grid-cols-1 lg:grid-cols-3 gap-6"></div>
+
+            <!-- INTERACTIVE BIOPHYSICS SIMULATOR: RESIDUE CONTACT MAP + LANGEVIN POLYMER MD -->
+            <section class="glass-card rounded-2xl p-6 border border-fmnCyan/25 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                    <div>
+                        <span class="font-mono text-xs text-fmnCyan uppercase">Interactive In Silico Workbench</span>
+                        <h2 class="font-display text-2xl font-bold text-white">Coevolving Residue Contact Matrix & Active Biopolymer MD</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Modeled after solab.org's residue coupling maps & Debarshi's JNU Langevin Dynamics C-code project</p>
+                    </div>
+                    <!-- Mode Switcher -->
+                    <div class="flex gap-2 bg-obsidian p-1 rounded-xl border border-slate-800 self-start">
+                        <button onclick="switchSimTab('contact')" id="sim-tab-contact" class="px-3 py-1.5 rounded-lg font-mono text-xs bg-fmnCyan/20 text-fmnCyan border border-fmnCyan/30">
+                            A • Aureochrome Contact Map
+                        </button>
+                        <button onclick="switchSimTab('langevin')" id="sim-tab-langevin" class="px-3 py-1.5 rounded-lg font-mono text-xs text-slate-400 hover:text-white">
+                            B • Langevin Polymer Chain MD
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TAB A: Interactive Inter-Residue Contact & Allosteric Coupling Matrix -->
+                <div id="sim-panel-contact" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    <div class="lg:col-span-6 flex flex-col items-center">
+                        <canvas id="contactMapCanvas" width="380" height="380" class="rounded-xl border border-slate-700 bg-obsidian cursor-crosshair max-w-full"></canvas>
+                        <div class="flex items-center gap-4 mt-3 text-[11px] font-mono text-slate-400">
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-sky-400 inline-block"></span> bZIP DNA-Binding (1–75)</span>
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-amber-400 inline-block"></span> Linker/Hinge (76–115)</span>
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-fmnCyan inline-block"></span> LOV-FMN Core (116–240)</span>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-6 space-y-4">
+                        <div class="p-4 rounded-xl bg-obsidian/90 border border-slate-800 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="font-mono text-xs text-fmnCyan">HOVER INSPECTOR // RESIDUE PAIR (i, j)</span>
+                                <span id="cmStateBadge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Dark State</span>
+                            </div>
+                            <div id="cmReadoutPrimary" class="font-mono text-base font-bold text-white">Move cursor over the contact matrix to inspect residue couplings</div>
+                            <div id="cmReadoutSecondary" class="font-mono text-xs text-slate-400">Diagonal blocks represent intra-domain secondary structures; off-diagonal clusters highlight allosteric bZIP–LOV communication pathways.</div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="font-mono text-xs text-slate-300 block">Perturb Conformational Ensemble:</label>
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="setContactMapMode('dark')" id="cm-btn-dark" class="px-3 py-1.5 rounded-lg font-mono text-xs bg-fmnCyan/20 text-fmnCyan border border-fmnCyan/40">Dark State (Caged bZIP-LOV)</button>
+                                <button onclick="setContactMapMode('lit')" id="cm-btn-lit" class="px-3 py-1.5 rounded-lg font-mono text-xs bg-slate-800 text-slate-300 border border-slate-700">Blue-Light Lit State (Jα Unfolding)</button>
+                                <button onclick="setContactMapMode('his')" id="cm-btn-his" class="px-3 py-1.5 rounded-lg font-mono text-xs bg-slate-800 text-slate-300 border border-slate-700">His-Mutant DNA Interface</button>
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-xl bg-slateDeep/70 border border-slate-800 text-xs text-slate-300 space-y-1.5 leading-relaxed">
+                            <div class="font-mono text-lovBlue font-semibold">Biophysical Interpretation:</div>
+                            <p id="cmBioInterpretation">In the dark state, the C-terminal LOV domain cages the N-terminal bZIP domain via hydrophobic inter-domain contacts (off-diagonal cyan patches). Upon 450 nm photoexcitation, Cys-FMN adduct formation undocks the Jα helix, exposing the bZIP basic region for target DNA recognition.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB B: Live 2D Langevin Dynamics Biopolymer Simulator -->
+                <div id="sim-panel-langevin" class="hidden grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    <div class="lg:col-span-7">
+                        <canvas id="langevinCanvas" width="540" height="360" class="w-full rounded-xl border border-slate-700 bg-obsidian"></canvas>
+                    </div>
+                    <div class="lg:col-span-5 space-y-4">
+                        <div class="p-3.5 rounded-xl bg-obsidian border border-slate-800 grid grid-cols-2 gap-3 font-mono text-xs">
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">END-TO-END DIST (R_ee)</span>
+                                <span id="mdReeReadout" class="text-fmnCyan font-bold text-base">0.0 Å</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">RADIUS OF GYRATION (R_g)</span>
+                                <span id="mdRgReadout" class="text-lovBlue font-bold text-base">0.0 Å</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">KINETIC ENERGY (E_kin)</span>
+                                <span id="mdEkReadout" class="text-amber-400 font-bold text-base">0.0 k_BT</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">POTENTIAL ENERGY (U_bond)</span>
+                                <span id="mdEpReadout" class="text-purple-400 font-bold text-base">0.0 kcal/mol</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 bg-slateDeep/60 p-4 rounded-xl border border-slate-800">
+                            <div>
+                                <div class="flex justify-between font-mono text-xs mb-1">
+                                    <span class="text-slate-300">Bath Temperature (T)</span>
+                                    <span id="mdTempVal" class="text-fmnCyan">300 K</span>
+                                </div>
+                                <input id="mdTempSlider" type="range" min="100" max="600" value="300" oninput="updateLangevinParams()" class="w-full accent-fmnCyan">
+                            </div>
+                            <div>
+                                <div class="flex justify-between font-mono text-xs mb-1">
+                                    <span class="text-slate-300">Harmonic Spring Constant (k_bond)</span>
+                                    <span id="mdSpringVal" class="text-lovBlue">0.18</span>
+                                </div>
+                                <input id="mdSpringSlider" type="range" min="5" max="40" value="18" oninput="updateLangevinParams()" class="w-full accent-lovBlue">
+                            </div>
+                            <div>
+                                <div class="flex justify-between font-mono text-xs mb-1">
+                                    <span class="text-slate-300">Implicit Solvent Friction (γ)</span>
+                                    <span id="mdFrictionVal" class="text-amber-400">0.08 ps⁻¹</span>
+                                </div>
+                                <input id="mdFrictionSlider" type="range" min="2" max="25" value="8" oninput="updateLangevinParams()" class="w-full accent-amber-400">
+                            </div>
+                            <div class="flex gap-2 pt-1">
+                                <button onclick="impulsePolymerChain()" class="flex-1 py-2 rounded-lg font-mono text-xs bg-fmnCyan/20 hover:bg-fmnCyan/30 text-fmnCyan border border-fmnCyan/40">Thermal Kick (Δp)</button>
+                                <button onclick="togglePolymerCollapse()" id="mdCollapseBtn" class="flex-1 py-2 rounded-lg font-mono text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">Hydrophobic Collapse: OFF</button>
+                            </div>
+                        </div>
+                        <p class="text-[11px] font-mono text-slate-400">Tip: Drag any monomer bead directly on the canvas to apply steerable SMD (Steered Molecular Dynamics) pulling forces.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Detailed Research Chronology & Projects -->
+            <section class="space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div>
+                        <span class="font-mono text-xs text-fmnCyan">02.B //</span>
+                        <h2 class="font-display text-2xl font-bold text-white inline ml-2">Research Experience & Laboratory Appointments</h2>
+                    </div>
+                    <span class="font-mono text-xs text-slate-400">Presidency University & JNU New Delhi</span>
+                </div>
+                <div id="experience-timeline" class="space-y-4"></div>
+            </section>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- PAGE 03: PUBLICATIONS & CONFERENCES                               -->
+        <!-- ================================================================= -->
+        <div id="page-publications" class="page-view space-y-10">
+
+            <div class="border-b border-slate-800 pb-5 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <span class="font-mono text-xs text-fmnCyan uppercase tracking-widest">03 • Scholarly Output</span>
+                    <h1 class="font-display text-3xl sm:text-4xl font-bold text-white mt-1">Publications, Preprints & Acknowledged Works</h1>
+                </div>
+                <!-- Filter Pills -->
+                <div class="flex flex-wrap gap-1.5">
+                    <button onclick="filterPublications('ALL')" data-pubfilter="ALL" class="pub-filter-btn px-3 py-1.5 rounded-lg font-mono text-xs bg-fmnCyan/20 text-fmnCyan border border-fmnCyan/40">All Works (4)</button>
+                    <button onclick="filterPublications('Peer-Reviewed Article')" data-pubfilter="Peer-Reviewed Article" class="pub-filter-btn px-3 py-1.5 rounded-lg font-mono text-xs bg-slate-800 text-slate-300">Journal Articles (2)</button>
+                    <button onclick="filterPublications('Acknowledged Contribution')" data-pubfilter="Acknowledged Contribution" class="pub-filter-btn px-3 py-1.5 rounded-lg font-mono text-xs bg-slate-800 text-slate-300">Acknowledged Contributions (2)</button>
+                </div>
+            </div>
+
+            <!-- Publications List -->
+            <div id="publications-container" class="space-y-4"></div>
+
+            <!-- Conferences & Seminars Section -->
+            <section class="space-y-4 pt-4">
+                <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+                    <span class="font-mono text-xs text-lovBlue">03.B //</span>
+                    <h2 class="font-display text-2xl font-bold text-white">Conferences, Posters & Scientific Symposia</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="glass-card p-5 rounded-xl border-l-4 border-l-fmnCyan space-y-2">
+                        <div class="flex items-center justify-between font-mono text-xs">
+                            <span class="text-fmnCyan font-semibold">POSTER PRESENTATION • FEB 2026</span>
+                            <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">IIT Kharagpur</span>
+                        </div>
+                        <h3 class="font-display font-bold text-white text-lg">Emerging Trends in Disease Biology: Mechanisms to Medicine (Mech2Med)</h3>
+                        <p class="text-xs text-slate-300">International Conference hosted at the Indian Institute of Technology (IIT) Kharagpur, India.</p>
+                    </div>
+                    <div class="glass-card p-5 rounded-xl border-l-4 border-l-lovBlue space-y-2">
+                        <div class="flex items-center justify-between font-mono text-xs">
+                            <span class="text-lovBlue font-semibold">ROYAL SOCIETY OF CHEMISTRY SEMINAR • APR 2023</span>
+                            <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">Presidency University</span>
+                        </div>
+                        <h3 class="font-display font-bold text-white text-lg">Chemistry Behind Phytochemicals & Their Medicinal Importance</h3>
+                        <p class="text-xs text-slate-300">One-Day State-Level Seminar sponsored by the Royal Society of Chemistry (London) at Presidency University, Kolkata.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- PAGE 04: CODE & BIOPHYSICS LAB SUITE (CALCULATORS + GITHUB + TECH)-->
+        <!-- ================================================================= -->
+        <div id="page-suite" class="page-view space-y-12">
+
+            <div class="border-b border-slate-800 pb-5 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <span class="font-mono text-xs text-fmnCyan uppercase tracking-widest">04 • Open-Source Code & Quantitative Workbench</span>
+                    <h1 class="font-display text-3xl sm:text-4xl font-bold text-white mt-1">Biophysics Calculator Suite & GitHub Repositories</h1>
+                </div>
+                <a href="https://github.com/DB03-biology" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-xs bg-slate-800 hover:bg-slate-700 text-fmnCyan border border-fmnCyan/30 self-start">
+                    <i class="fa-brands fa-github text-base"></i>
+                    <span>github.com/DB03-biology</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                </a>
+            </div>
+
+            <!-- 4-IN-1 BIOPHYSICS & SCIENTIFIC BENCH CALCULATOR SUITE -->
+            <section class="glass-card rounded-2xl p-6 border border-fmnCyan/30 space-y-6">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                    <div>
+                        <span class="font-mono text-xs text-fmnCyan uppercase">Interactive Bench & Computational Toolkit</span>
+                        <h2 class="font-display text-2xl font-bold text-white">Multi-Mode Scientific & Protein Biophysics Calculator</h2>
+                    </div>
+                    <!-- 4 Calculator Mode Tabs -->
+                    <div class="flex flex-wrap gap-1.5 bg-obsidian p-1.5 rounded-xl border border-slate-800">
+                        <button onclick="switchCalcTab('sci')" id="calctab-sci" class="px-3 py-1.5 rounded-lg font-mono text-xs bg-fmnCyan/20 text-fmnCyan border border-fmnCyan/40">1 • Scientific & Constants</button>
+                        <button onclick="switchCalcTab('beer')" id="calctab-beer" class="px-3 py-1.5 rounded-lg font-mono text-xs text-slate-400 hover:text-white">2 • FMN & Protein Beer-Lambert</button>
+                        <button onclick="switchCalcTab('kd')" id="calctab-kd" class="px-3 py-1.5 rounded-lg font-mono text-xs text-slate-400 hover:text-white">3 • Kd ⇄ ΔG & FRET Efficiency</button>
+                        <button onclick="switchCalcTab('sdm')" id="calctab-sdm" class="px-3 py-1.5 rounded-lg font-mono text-xs text-slate-400 hover:text-white">4 • SDM Primer Tm & Buffer Dilution</button>
+                    </div>
+                </div>
+
+                <!-- CALCULATOR MODE 1: Full Scientific Expression Calculator + Physical Constants -->
+                <div id="calcpanel-sci" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-7 space-y-3">
+                        <div class="p-4 rounded-xl bg-obsidian border border-slate-700 space-y-2">
+                            <div class="flex justify-between items-center text-[11px] font-mono text-slate-400">
+                                <span id="sciAngleMode">MODE: RADIANS</span>
+                                <button onclick="clearSciHistory()" class="hover:text-fmnCyan">Clear Tape</button>
+                            </div>
+                            <input id="sciInputDisplay" type="text" placeholder="e.g. -8.314 * 298.15 * ln(1.5e-7) / 1000" class="w-full bg-transparent text-right font-mono text-xl sm:text-2xl text-white focus:outline-none" onkeydown="if(event.key==='Enter') evaluateSciCalc()">
+                            <div id="sciResultPreview" class="text-right font-mono text-sm text-fmnCyan h-5">= 0</div>
+                        </div>
+
+                        <!-- Scientific Keypad -->
+                        <div class="grid grid-cols-5 gap-2 font-mono text-xs sm:text-sm">
+                            <button onclick="insertSciToken('sin(')" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300">sin</button>
+                            <button onclick="insertSciToken('cos(')" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300">cos</button>
+                            <button onclick="insertSciToken('tan(')" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300">tan</button>
+                            <button onclick="insertSciToken('ln(')" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300">ln</button>
+                            <button onclick="insertSciToken('log(')" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300">log₁₀</button>
+
+                            <button onclick="insertSciToken('sqrt(')" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300">√x</button>
+                            <button onclick="insertSciToken('^')" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300">xʸ</button>
+                            <button onclick="insertSciToken('(')" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">(</button>
+                            <button onclick="insertSciToken(')')" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">)</button>
+                            <button onclick="clearSciDisplay()" class="p-2.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold">AC</button>
+
+                            <button onclick="insertSciToken('7')" class="p-2.5 rounded-lg bg-slateDeep hover:bg-slate-800 text-white border border-slate-800">7</button>
+                            <button onclick="insertSciToken('8')" class="p-2.5 rounded-lg bg-slateDeep hover:bg-slate-800 text-white border border-slate-800">8</button>
+                            <button onclick="insertSciToken('9')" class="p-2.5 rounded-lg bg-slateDeep hover:bg-slate-800 text-white border border-slate-800">9</button>
+                            <button onclick="insertSciToken('/')" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-fmnCyan">÷</button>
+                            <button onclick="backspaceSci()" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300">⌫</button>
+
+                            <button onclick="insertSciToken('4')" class="p-2.5 rounded-lg bg-slateDeep hover:bg-slate-800 text-white border border-slate-800">4</button>
+                            <button onclick="insertSciToken('5')" class="p-2.5 rounded-lg bg-slateDeep hover:bg-slate-800 text-white border border-slate-800">5</button>
+                            <button onclick="insertSciToken('6')" class="p-2.5 rounded-lg bg-slateDeep hover:bg-slate-800 text-white border border-slate-800">6</button>
+                            <button onclick="insertSciToken('*')" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-fmnCyan">×</button>
+                            <button onclick="insertSciToken('e-')" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-purple-300">10⁻ˣ</button>
+
+                            <button onclick="insertSciToken('1')" class="p-2.5 rounded-lg bg-slateDeep hover:bg-slate-800 text-white border border-slate-800">1</button>
+                            <button onclick="insertSciToken('2')" class="p-2.5 rounded-lg bg-slateDeep hover:bg-slate-800 text-white border border-slate-800">2</button>
+                            <button onclick="insertSciToken('3')" class="p-2.5 rounded-lg bg-slateDeep hover:bg-slate-800 text-white border border-slate-800">3</button>
+                            <button onclick="insertSciToken('-')" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-fmnCyan">−</button>
+                            <button onclick="insertSciToken('pi')" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-purple-300">π</button>
+
+                            <button onclick="insertSciToken('0')" class="p-2.5 rounded-lg bg-slateDeep hover:bg-slate-800 text-white border border-slate-800">0</button>
+                            <button onclick="insertSciToken('.')" class="p-2.5 rounded-lg bg-slateDeep hover:bg-slate-800 text-white border border-slate-800">.</button>
+                            <button onclick="evaluateSciCalc()" class="col-span-2 p-2.5 rounded-lg bg-fmnCyan hover:bg-fmnCyan/90 text-obsidian font-bold">=</button>
+                            <button onclick="insertSciToken('+')" class="p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-fmnCyan">+</button>
+                        </div>
+                    </div>
+
+                    <!-- Biophysical Constants & Calculation Tape -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <div class="p-4 rounded-xl bg-obsidian border border-slate-800 space-y-2">
+                            <span class="font-mono text-xs text-fmnCyan uppercase block">Insert Physical Constants</span>
+                            <div class="grid grid-cols-2 gap-2 font-mono text-xs">
+                                <button onclick="insertSciToken('8.31446')" class="p-2 rounded bg-slateDeep hover:bg-slate-800 text-left border border-slate-800">
+                                    <span class="text-white font-bold">R</span> = 8.314 J/(mol·K)
+                                </button>
+                                <button onclick="insertSciToken('0.001987')" class="p-2 rounded bg-slateDeep hover:bg-slate-800 text-left border border-slate-800">
+                                    <span class="text-white font-bold">R</span> = 1.987e-3 kcal/mol·K
+                                </button>
+                                <button onclick="insertSciToken('1.38065e-23')" class="p-2 rounded bg-slateDeep hover:bg-slate-800 text-left border border-slate-800">
+                                    <span class="text-white font-bold">k_B</span> = 1.38e-23 J/K
+                                </button>
+                                <button onclick="insertSciToken('6.02214e23')" class="p-2 rounded bg-slateDeep hover:bg-slate-800 text-left border border-slate-800">
+                                    <span class="text-white font-bold">N_A</span> = 6.022e23 mol⁻¹
+                                </button>
+                                <button onclick="insertSciToken('6.62607e-34')" class="p-2 rounded bg-slateDeep hover:bg-slate-800 text-left border border-slate-800">
+                                    <span class="text-white font-bold">h</span> = 6.626e-34 J·s
+                                </button>
+                                <button onclick="insertSciToken('298.15')" class="p-2 rounded bg-slateDeep hover:bg-slate-800 text-left border border-slate-800">
+                                    <span class="text-white font-bold">T₀</span> = 298.15 K (25°C)
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-xl bg-obsidian border border-slate-800 space-y-2">
+                            <span class="font-mono text-xs text-lovBlue uppercase block">Lab Calculation History Tape</span>
+                            <div id="sciHistoryList" class="space-y-1.5 max-h-40 overflow-y-auto font-mono text-xs text-slate-300">
+                                <div class="text-slate-500 italic">Try calculating ΔG = -0.001987 * 298.15 * ln(1e-7)...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CALCULATOR MODE 2: Beer-Lambert UV-Vis & FMN Holoprotein Stoichiometry -->
+                <div id="calcpanel-beer" class="hidden grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4 p-4 rounded-xl bg-obsidian border border-slate-800">
+                        <h3 class="font-mono text-sm font-bold text-fmnCyan">A = ε · c · l (UV-Vis Spectrophotometry)</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
+                            <div>
+                                <label class="text-slate-400 block mb-1">Preset Chromophore / Protein</label>
+                                <select id="beerPreset" onchange="applyBeerPreset()" class="w-full p-2 rounded bg-slateDeep border border-slate-700 text-white">
+                                    <option value="12500|17.0">FMN at 450 nm (ε = 12,500 M⁻¹cm⁻¹)</option>
+                                    <option value="28500|17.0">Aureo1 LOV Domain at 280 nm (ε = 28,500)</option>
+                                    <option value="43824|66.5">BSA Standard at 280 nm (ε = 43,824)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-slate-400 block mb-1">Absorbance (A)</label>
+                                <input id="beerAbs" type="number" step="0.01" value="0.625" oninput="computeBeerLambert()" class="w-full p-2 rounded bg-slateDeep border border-slate-700 text-white">
+                            </div>
+                            <div>
+                                <label class="text-slate-400 block mb-1">Extinction Coeff ε (M⁻¹cm⁻¹)</label>
+                                <input id="beerEps" type="number" step="100" value="12500" oninput="computeBeerLambert()" class="w-full p-2 rounded bg-slateDeep border border-slate-700 text-white">
+                            </div>
+                            <div>
+                                <label class="text-slate-400 block mb-1">Pathlength l (cm) & MW (kDa)</label>
+                                <div class="flex gap-1.5">
+                                    <input id="beerPath" type="number" step="0.1" value="1.0" oninput="computeBeerLambert()" class="w-1/2 p-2 rounded bg-slateDeep border border-slate-700 text-white" title="Pathlength cm">
+                                    <input id="beerMw" type="number" step="0.5" value="17.0" oninput="computeBeerLambert()" class="w-1/2 p-2 rounded bg-slateDeep border border-slate-700 text-white" title="MW in kDa">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="beerOutputBox" class="p-3.5 rounded-lg bg-slateDeep border border-fmnCyan/30 font-mono text-xs space-y-1"></div>
+                    </div>
+
+                    <div class="space-y-4 p-4 rounded-xl bg-obsidian border border-slate-800">
+                        <h3 class="font-mono text-sm font-bold text-lovBlue">Sequence Trp/Tyr/Cys ε₂₈₀ Estimator (Pace Method)</h3>
+                        <p class="text-xs text-slate-400">Estimate theoretical molar extinction coefficient at 280 nm from amino acid counts:</p>
+                        <div class="grid grid-cols-3 gap-3 font-mono text-xs">
+                            <div>
+                                <label class="text-slate-400 block mb-1"># Trp (W) × 5500</label>
+                                <input id="trpCount" type="number" min="0" value="2" oninput="computePaceExtinction()" class="w-full p-2 rounded bg-slateDeep border border-slate-700 text-white">
+                            </div>
+                            <div>
+                                <label class="text-slate-400 block mb-1"># Tyr (Y) × 1490</label>
+                                <input id="tyrCount" type="number" min="0" value="5" oninput="computePaceExtinction()" class="w-full p-2 rounded bg-slateDeep border border-slate-700 text-white">
+                            </div>
+                            <div>
+                                <label class="text-slate-400 block mb-1"># Cystine (S-S) × 125</label>
+                                <input id="cysCount" type="number" min="0" value="0" oninput="computePaceExtinction()" class="w-full p-2 rounded bg-slateDeep border border-slate-700 text-white">
+                            </div>
+                        </div>
+                        <div id="paceOutputBox" class="p-3.5 rounded-lg bg-slateDeep border border-lovBlue/30 font-mono text-xs"></div>
+                    </div>
+                </div>
+
+                <!-- CALCULATOR MODE 3: Binding Affinity Kd ⇄ ΔG & FRET Efficiency -->
+                <div id="calcpanel-kd" class="hidden grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4 p-4 rounded-xl bg-obsidian border border-slate-800">
+                        <h3 class="font-mono text-sm font-bold text-fmnCyan">Thermodynamic Binding Affinity: ΔG° = R·T·ln(K_d)</h3>
+                        <p class="text-xs text-slate-400">Used in EMSA protein-DNA & photoreceptor ligand binding studies:</p>
+                        <div class="grid grid-cols-2 gap-3 font-mono text-xs">
+                            <div>
+                                <label class="text-slate-400 block mb-1">Dissociation Constant K_d (nM)</label>
+                                <input id="kdInputNm" type="number" step="1" value="85" oninput="computeKdThermo()" class="w-full p-2 rounded bg-slateDeep border border-slate-700 text-white">
+                            </div>
+                            <div>
+                                <label class="text-slate-400 block mb-1">Temperature T (Kelvin)</label>
+                                <input id="kdTempK" type="number" step="1" value="298.15" oninput="computeKdThermo()" class="w-full p-2 rounded bg-slateDeep border border-slate-700 text-white">
+                            </div>
+                        </div>
+                        <div id="kdOutputBox" class="p-3.5 rounded-lg bg-slateDeep border border-fmnCyan/30 font-mono text-xs space-y-1"></div>
+                    </div>
+
+                    <div class="space-y-4 p-4 rounded-xl bg-obsidian border border-slate-800">
+                        <h3 class="font-mono text-sm font-bold text-lovBlue">Förster Resonance Energy Transfer (FRET) Efficiency</h3>
+                        <p class="text-xs text-slate-400">E = 1 / [1 + (r / R₀)⁶] for inter-domain conformational distance mapping:</p>
+                        <div class="grid grid-cols-2 gap-3 font-mono text-xs">
+                            <div>
+                                <label class="text-slate-400 block mb-1">Donor-Acceptor Distance r (Å)</label>
+                                <input id="fretR" type="number" step="1" value="42" oninput="computeFretCalc()" class="w-full p-2 rounded bg-slateDeep border border-slate-700 text-white">
+                            </div>
+                            <div>
+                                <label class="text-slate-400 block mb-1">Förster Radius R₀ (Å)</label>
+                                <input id="fretR0" type="number" step="1" value="50" oninput="computeFretCalc()" class="w-full p-2 rounded bg-slateDeep border border-slate-700 text-white">
+                            </div>
+                        </div>
+                        <div id="fretOutputBox" class="p-3.5 rounded-lg bg-slateDeep border border-lovBlue/30 font-mono text-xs space-y-1"></div>
+                    </div>
+                </div>
+
+                <!-- CALCULATOR MODE 4: SDM Mutagenesis Primer Tm & IMAC Buffer Dilution -->
+                <div id="calcpanel-sdm" class="hidden grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4 p-4 rounded-xl bg-obsidian border border-slate-800">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-mono text-sm font-bold text-fmnCyan">SDM Mutagenic Primer T_m Evaluator</h3>
+                            <span class="text-[10px] font-mono text-slate-400">Inspired by DB03-biology/SDM-Primer-Design</span>
+                        </div>
+                        <div class="space-y-2.5 font-mono text-xs">
+                            <div>
+                                <label class="text-slate-400 block mb-1">Primer Sequence (5' ➔ 3')</label>
+                                <input id="sdmSeqInput" type="text" value="GCTGATCATCCAGGCCTTCCTGGGCTTC" oninput="computeSdmPrimer()" class="w-full p-2 rounded bg-slateDeep border border-slate-700 text-white uppercase">
+                            </div>
+                            <div>
+                                <label class="text-slate-400 block mb-1">Number of Mismatched Bases</label>
+                                <input id="sdmMismatches" type="number" min="0" max="10" value="2" oninput="computeSdmPrimer()" class="w-full p-2 rounded bg-slateDeep border border-slate-700 text-white">
+                            </div>
+                        </div>
+                        <div id="sdmOutputBox" class="p-3.5 rounded-lg bg-slateDeep border border-fmnCyan/30 font-mono text-xs space-y-1"></div>
+                    </div>
+
+                    <div class="space-y-4 p-4 rounded-xl bg-obsidian border border-slate-800">
+                        <h3 class="font-mono text-sm font-bold text-lovBlue">IMAC / SEC Buffer Stock Dilution (C₁V₁ = C₂V₂)</h3>
+                        <p class="text-xs text-slate-400">Quick bench preparation for NaCl / Imidazole elution buffers:</p>
+                        <div class="grid grid-cols-3 gap-2.5 font-mono text-xs">
+                            <div>
+                                <label class="text-slate-400 block mb-1">Stock C₁ (mM)</label>
+                                <input id="dilC1" type="number" value="1000" oninput="computeDilution()" class="w-full p-2 rounded bg-slateDeep border border-slate-700 text-white">
+                            </div>
+                            <div>
+                                <label class="text-slate-400 block mb-1">Target C₂ (mM)</label>
+                                <input id="dilC2" type="number" value="250" oninput="computeDilution()" class="w-full p-2 rounded bg-slateDeep border border-slate-700 text-white">
+                            </div>
+                            <div>
+                                <label class="text-slate-400 block mb-1">Final Vol V₂ (mL)</label>
+                                <input id="dilV2" type="number" value="50" oninput="computeDilution()" class="w-full p-2 rounded bg-slateDeep border border-slate-700 text-white">
+                            </div>
+                        </div>
+                        <div id="dilOutputBox" class="p-3.5 rounded-lg bg-slateDeep border border-lovBlue/30 font-mono text-xs space-y-1"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pinned GitHub Repositories (DB03-biology) -->
+            <section class="space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div>
+                        <span class="font-mono text-xs text-fmnCyan">04.B //</span>
+                        <h2 class="font-display text-2xl font-bold text-white inline ml-2">Open-Source Computational Repositories</h2>
+                    </div>
+                    <span class="font-mono text-xs text-slate-400">github.com/DB03-biology</span>
+                </div>
+                <div id="repos-grid" class="grid grid-cols-1 md:grid-cols-3 gap-5"></div>
+            </section>
+
+            <!-- Complete Wet-Lab & Structural Bioinformatics Skills Matrix -->
+            <section class="space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div>
+                        <span class="font-mono text-xs text-lovBlue">04.C //</span>
+                        <h2 class="font-display text-2xl font-bold text-white inline ml-2">Experimental Wet-Lab & Structural Bioinformatics Stack</h2>
+                    </div>
+                </div>
+                <div id="skills-matrix" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+            </section>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- PAGE 05: BEYOND THE LAB (WILDLIFE, PUBLIC HEALTH, CHESS, ARTS)    -->
+        <!-- ================================================================= -->
+        <div id="page-beyond" class="page-view space-y-10">
+
+            <div class="border-b border-slate-800 pb-5">
+                <span class="font-mono text-xs text-fmnCyan uppercase tracking-widest">05 • Fieldwork, Outreach & Extracurriculars</span>
+                <h1 class="font-display text-3xl sm:text-4xl font-bold text-white mt-1">Beyond the Bench & Terminal</h1>
+                <p class="text-slate-400 text-sm mt-1">Conservation biology fieldwork in the Eastern Himalayas, community health camps, tactical chess, and music.</p>
+            </div>
+
+            <div id="beyond-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+
+            <!-- Interactive Mini-Chess Tactical Board & Language Proficiency -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <div class="lg:col-span-7 glass-card p-6 rounded-2xl space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="font-mono text-xs text-fmnCyan uppercase">Interactive Lab Break Puzzle</span>
+                            <h3 class="font-display text-xl font-bold text-white">Tactical Chess Challenge (Lichess 1438)</h3>
+                        </div>
+                        <button onclick="resetChessPuzzle()" class="px-3 py-1 rounded-lg font-mono text-xs bg-slate-800 hover:bg-slate-700 text-slate-300">Reset Puzzle</button>
+                    </div>
+                    <p id="chessStatusText" class="text-xs font-mono text-lovBlue">White to move: Click the White Queen (♕ on d1) and deliver a classic discovery/fork tactical motif on h5!</p>
+                    <div class="flex flex-col sm:flex-row items-center gap-6">
+                        <div id="miniChessBoard" class="grid grid-cols-4 border-2 border-slate-700 rounded-lg overflow-hidden w-52 h-52 shrink-0 select-none"></div>
+                        <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
+                            <p>Whether optimizing a site-directed mutagenesis protocol or navigating a sharp Sicilian Defense on Lichess, pattern recognition and multi-step lookahead are at the core of both structural biology and chess.</p>
+                            <div class="p-3 rounded-lg bg-obsidian border border-slate-800 font-mono text-[11px] text-slate-400 space-y-1">
+                                <div>• Lichess Mean Rating: <strong class="text-white">1438</strong></div>
+                                <div>• Format: <strong class="text-white">Rapid & Classical Tactical Play</strong></div>
+                                <div>• Focus: <strong class="text-white">Combinatorial Endgames & Calculation</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 space-y-4">
+                    <!-- Dedicated Small Box for Fine Arts, Music & Literature -->
+                    <div class="glass-card p-5 rounded-2xl space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs text-fmnCyan uppercase">Creative Pursuits</span>
+                            <i class="fa-solid fa-palette text-fmnCyan text-sm"></i>
+                        </div>
+                        <h3 class="font-display text-lg font-bold text-white">Fine Arts, Music & Mystery Fiction</h3>
+                        <div class="p-3.5 rounded-xl bg-obsidian border border-slate-800 font-mono text-[11px] text-slate-400 space-y-2">
+                            <div class="flex items-start gap-2">
+                                <span class="text-fmnCyan">🎨</span>
+                                <span>Visual Arts: <strong class="text-white">Bangiya Sangeet Parishad (3rd Year Qualified in Drawing)</strong></span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="text-lovBlue">🎸</span>
+                                <span>Music: <strong class="text-white">Intermediate Acoustic/Electric Guitar & Choral Vocalist</strong></span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="text-amber-400">📖</span>
+                                <span>Reading: <strong class="text-white">Classic Mystery & Detective Fiction (Agatha Christie)</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Language Proficiency Box -->
+                    <div class="glass-card p-5 rounded-2xl space-y-3">
+                        <span class="font-mono text-xs text-lovBlue uppercase">Communication & Field Readiness</span>
+                        <h3 class="font-display text-lg font-bold text-white">Language Proficiency</h3>
+                        <div class="space-y-2.5 font-mono text-xs">
+                            <div class="p-2.5 rounded-xl bg-obsidian border border-slate-800 flex items-center justify-between">
+                                <div>
+                                    <div class="text-white font-bold">English (Academic & Professional)</div>
+                                    <div class="text-slate-400 text-[11px]">IELTS Academic (Aug 2026) — Overall Band 7.5</div>
+                                </div>
+                                <span class="px-2 py-1 rounded bg-fmnCyan/15 text-fmnCyan">Fluent</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-obsidian border border-slate-800 flex items-center justify-between">
+                                <div>
+                                    <div class="text-white font-bold">Bengali</div>
+                                    <div class="text-slate-400 text-[11px]">Mother tongue & primary regional language</div>
+                                </div>
+                                <span class="px-2 py-1 rounded bg-lovBlue/15 text-lovBlue">Native</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-obsidian border border-slate-800 flex items-center justify-between">
+                                <div>
+                                    <div class="text-white font-bold">Hindi</div>
+                                    <div class="text-slate-400 text-[11px]">Fieldwork & national institutional collaboration</div>
+                                </div>
+                                <span class="px-2 py-1 rounded bg-purple-500/15 text-purple-300">Conversational</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Toast Notification Banner -->
+    <div id="toastBanner" class="fixed bottom-5 right-5 z-50 hidden px-4 py-2.5 rounded-xl bg-obsidian border border-fmnCyan text-fmnCyan font-mono text-xs shadow-2xl flex items-center gap-2">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toastMessage">Copied to clipboard!</span>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- FOOTER                                                                -->
+    <!-- ===================================================================== -->
+    <footer class="border-t border-slate-800/80 bg-obsidian/90 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-slate-400">
+            <div>
+                <span class="text-fmnCyan font-bold">Debarshi Bose</span> • Structural Biochemistry & Optogenetics Lab, Presidency University, Kolkata
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="https://github.com/DB03-biology" target="_blank" class="hover:text-fmnCyan">GitHub</a>
+                <a href="https://orcid.org/0009-0002-3014-1771" target="_blank" class="hover:text-fmnCyan">ORCID: 0009-0002-3014-1771</a>
+                <a href="mailto:dbose2709@gmail.com" class="hover:text-fmnCyan">dbose2709@gmail.com</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===================================================================== -->
+    <!-- APPLICATION LOGIC: RENDERING, 3DMOL, CONTACT MAP, LANGEVIN, SUITE     -->
+    <!-- ===================================================================== -->
+    <script>
+        /* -------------------------------------------------------------------
+         * 1. DYNAMIC DATA RENDERING ENGINE
+         * ------------------------------------------------------------------- */
+        function renderAllContent() {
+            const d = window.SITE_DATA;
+
+            // Hero & Profile
+            document.getElementById('nav-brand-name').textContent = d.profile.handle || 'dbose';
+            document.getElementById('hero-status').textContent = d.profile.statusText;
+            document.getElementById('hero-stream').textContent = d.profile.solabStream;
+            document.getElementById('hero-name').textContent = d.profile.name;
+            document.getElementById('hero-role').textContent = `${d.profile.role} — ${d.profile.institution}`;
+            document.getElementById('hero-bio').textContent = d.profile.bioSummary;
+
+            // External Links
+            const linksHtml = `
+                <a href="${d.profile.github}" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl font-mono text-xs bg-slateDeep hover:bg-slate-800 text-white border border-slate-700 flex items-center gap-2 transition">
+                    <i class="fa-brands fa-github text-fmnCyan"></i> GitHub (DB03-biology)
+                </a>
+                <a href="https://orcid.org/${d.profile.orcid}" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl font-mono text-xs bg-slateDeep hover:bg-slate-800 text-white border border-slate-700 flex items-center gap-2 transition">
+                    <i class="fa-brands fa-orcid text-emerald-400"></i> ORCID (${d.profile.orcid})
+                </a>
+                <a href="${d.profile.linkedin}" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl font-mono text-xs bg-slateDeep hover:bg-slate-800 text-white border border-slate-700 flex items-center gap-2 transition">
+                    <i class="fa-brands fa-linkedin text-lovBlue"></i> LinkedIn
+                </a>
+                <a href="${d.profile.scholar}" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl font-mono text-xs bg-slateDeep hover:bg-slate-800 text-white border border-slate-700 flex items-center gap-2 transition">
+                    <i class="fa-solid fa-graduation-cap text-amber-400"></i> Google Scholar
+                </a>
+                <a href="mailto:${d.profile.email}" class="px-3.5 py-2 rounded-xl font-mono text-xs bg-fmnCyan/15 hover:bg-fmnCyan/25 text-fmnCyan border border-fmnCyan/30 flex items-center gap-2 transition">
+                    <i class="fa-solid fa-envelope"></i> ${d.profile.email}
+                </a>
+            `;
+            document.getElementById('hero-links').innerHTML = linksHtml;
+
+            // Metrics
+            document.getElementById('hero-metrics').innerHTML = d.metrics.map(m => `
+                <div class="glass-card p-3.5 rounded-xl">
+                    <div class="font-mono text-[10px] text-slate-400 uppercase">${m.label}</div>
+                    <div class="font-display text-xl sm:text-2xl font-bold text-fmnCyan mt-0.5">${m.value}</div>
+                    <div class="font-mono text-[11px] text-slate-300 mt-0.5">${m.sub}</div>
+                </div>
+            `).join('');
+
+            // News Feed
+            document.getElementById('news-grid').innerHTML = d.news.map(n => `
+                <div class="glass-card p-4 rounded-xl flex flex-col justify-between space-y-2">
+                    <div>
+                        <div class="flex items-center justify-between font-mono text-[11px] mb-1.5">
+                            <span class="px-2 py-0.5 rounded bg-fmnCyan/15 text-fmnCyan border border-fmnCyan/30">${n.badge}</span>
+                            <span class="text-slate-400">${n.date}</span>
+                        </div>
+                        <h3 class="font-display font-bold text-white text-sm sm:text-base">${n.title}</h3>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">${n.desc}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            // Education
+            document.getElementById('education-list').innerHTML = d.education.map(ed => `
+                <div class="glass-card p-4 rounded-xl space-y-1.5">
+                    <div class="flex items-center justify-between font-mono text-xs text-fmnCyan">
+                        <span>${ed.period}</span>
+                        <span class="px-2 py-0.5 rounded bg-fmnCyan/10 border border-fmnCyan/30">${ed.score}</span>
+                    </div>
+                    <div class="font-display font-bold text-white text-base">${ed.degree}</div>
+                    <div class="text-xs text-lovBlue font-mono">${ed.school}</div>
+                    <p class="text-xs text-slate-300 pt-1">${ed.details}</p>
+                </div>
+            `).join('');
+
+            // Research Frontiers (solab.org/research numbered style)
+            document.getElementById('frontiers-container').innerHTML = d.frontiers.map(f => `
+                <div class="glass-card p-6 rounded-2xl flex flex-col justify-between space-y-4 border-t-2 border-t-fmnCyan">
+                    <div class="space-y-3">
+                        <div class="font-mono text-xs text-fmnCyan tracking-widest">${f.num} • RESEARCH FRONTIER</div>
+                        <h2 class="font-display text-xl font-bold text-white">${f.title}</h2>
+                        <div class="text-xs font-mono text-lovBlue">${f.subtitle}</div>
+                        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">${f.description}</p>
+                    </div>
+                    <div class="space-y-3 pt-2">
+                        <div class="p-3 rounded-xl bg-obsidian/80 border border-slate-800 text-xs font-mono text-emerald-300">
+                            <i class="fa-solid fa-flask-vial mr-1"></i> ${f.highlightMetric}
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">
+                            ${f.tags.map(t => `<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700">${t}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Experience Timeline
+            document.getElementById('experience-timeline').innerHTML = d.experience.map(exp => `
+                <div class="glass-card p-5 rounded-2xl space-y-2.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-fmnCyan/15 text-fmnCyan border border-fmnCyan/30 mr-2">${exp.type}</span>
+                            <h3 class="font-display font-bold text-white text-lg inline">${exp.role}</h3>
+                        </div>
+                        <span class="font-mono text-xs text-lovBlue">${exp.period}</span>
+                    </div>
+                    <div class="font-mono text-xs text-slate-400">${exp.lab} • Advisor: <strong class="text-slate-200">${exp.pi}</strong></div>
+                    <ul class="space-y-1.5 text-xs sm:text-sm text-slate-300 pt-1">
+                        ${exp.bullets.map(b => `<li class="flex items-start gap-2"><span class="text-fmnCyan mt-1">▹</span><span>${b}</span></li>`).join('')}
+                    </ul>
+                </div>
+            `).join('');
+
+            // Publications
+            renderPublicationsList('ALL');
+
+            // GitHub Repositories
+            document.getElementById('repos-grid').innerHTML = d.repositories.map(repo => `
+                <div class="glass-card p-5 rounded-2xl flex flex-col justify-between space-y-4">
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2 font-mono text-sm font-bold text-white">
+                                <i class="fa-solid fa-book-bookmark text-fmnCyan"></i>
+                                <a href="${repo.url}" target="_blank" rel="noopener noreferrer" class="hover:text-fmnCyan underline decoration-slate-700">${repo.name}</a>
+                            </div>
+                            ${repo.colabBadge ? `<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-300 border border-amber-500/30">Colab Ready</span>` : ''}
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">${repo.description}</p>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex flex-wrap gap-1">
+                            ${repo.topics.map(t => `<span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-obsidian text-lovBlue border border-slate-800">#${t}</span>`).join('')}
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-800/80 font-mono text-xs">
+                            <span class="flex items-center gap-1.5 text-slate-300">
+                                <span class="w-2.5 h-2.5 rounded-full" style="background:${repo.langColor}"></span>
+                                ${repo.lang}
+                            </span>
+                            <a href="${repo.url}" target="_blank" rel="noopener noreferrer" class="text-fmnCyan hover:underline">View Source ➔</a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Skills Matrix
+            document.getElementById('skills-matrix').innerHTML = `
+                <div class="glass-card p-5 rounded-2xl space-y-4">
+                    <div class="flex items-center gap-2 font-mono text-xs text-fmnCyan uppercase">
+                        <i class="fa-solid fa-flask"></i> Experimental Wet-Lab Biochemistry
+                    </div>
+                    <div class="space-y-3">
+                        ${d.skills.wetLab.map(cat => `
+                            <div>
+                                <div class="font-display font-semibold text-white text-sm mb-1.5">${cat.category}</div>
+                                <div class="flex flex-wrap gap-1.5">
+                                    ${cat.items.map(i => `<span class="px-2.5 py-1 rounded-lg font-mono text-xs bg-obsidian text-slate-200 border border-slate-800">${i}</span>`).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="glass-card p-5 rounded-2xl space-y-4">
+                    <div class="flex items-center gap-2 font-mono text-xs text-lovBlue uppercase">
+                        <i class="fa-solid fa-microchip"></i> Structural Bioinformatics & Simulation
+                    </div>
+                    <div class="space-y-3">
+                        ${d.skills.computational.map(cat => `
+                            <div>
+                                <div class="font-display font-semibold text-white text-sm mb-1.5">${cat.category}</div>
+                                <div class="flex flex-wrap gap-1.5">
+                                    ${cat.items.map(i => `<span class="px-2.5 py-1 rounded-lg font-mono text-xs bg-obsidian text-sky-200 border border-slate-800">${i}</span>`).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Beyond the Lab
+            document.getElementById('beyond-grid').innerHTML = d.beyondLab.map(item => `
+                <div class="glass-card p-6 rounded-2xl space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="w-10 h-10 rounded-xl bg-fmnCyan/15 border border-fmnCyan/30 flex items-center justify-center text-fmnCyan">
+                            <i class="fa-solid ${item.icon} text-lg"></i>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full font-mono text-[11px] bg-slateDeep text-lovBlue border border-slate-700">${item.badge}</span>
+                    </div>
+                    <h3 class="font-display text-xl font-bold text-white">${item.title}</h3>
+                    <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">${item.description}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderPublicationsList(filterType) {
+            const pubs = window.SITE_DATA.publications.filter(p => filterType === 'ALL' || p.type === filterType);
+            document.getElementById('publications-container').innerHTML = pubs.map((p, idx) => `
+                <div class="glass-card p-5 sm:p-6 rounded-2xl space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2 font-mono text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded bg-fmnCyan/15 text-fmnCyan border border-fmnCyan/30">${p.year} • ${p.type}</span>
+                            <span class="px-2.5 py-0.5 rounded bg-lovBlue/15 text-lovBlue border border-lovBlue/30">${p.roleBadge}</span>
+                        </div>
+                        <a href="${p.url}" target="_blank" rel="noopener noreferrer" class="text-fmnCyan hover:underline flex items-center gap-1">
+                            <span>doi:${p.doi}</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                    <h3 class="font-display text-lg sm:text-xl font-bold text-white">${p.title}</h3>
+                    <div class="text-xs sm:text-sm text-slate-300 font-mono">${p.authors.replace('Bose, D.', '<strong class="text-fmnCyan underline">Bose, D.</strong>')}</div>
+                    <div class="text-xs font-mono text-amber-300">${p.journal}</div>
+                    <p class="text-xs text-slate-300/90 leading-relaxed pt-1">${p.abstract}</p>
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-800/80">
+                        <div class="flex flex-wrap gap-1.5">
+                            ${p.tags.map(t => `<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-obsidian text-slate-400 border border-slate-800">${t}</span>`).join('')}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="copyBibtex(${idx})" class="px-3 py-1 rounded-lg font-mono text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5">
+                                <i class="fa-regular fa-copy text-fmnCyan"></i> Copy BibTeX
+                            </button>
+                            <a href="${p.url}" target="_blank" rel="noopener noreferrer" class="px-3 py-1 rounded-lg font-mono text-xs bg-fmnCyan/15 hover:bg-fmnCyan/25 text-fmnCyan border border-fmnCyan/30">
+                                View Publication
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterPublications(type) {
+            document.querySelectorAll('.pub-filter-btn').forEach(btn => {
+                if (btn.dataset.pubfilter === type) {
+                    btn.className = "pub-filter-btn px-3 py-1.5 rounded-lg font-mono text-xs bg-fmnCyan/20 text-fmnCyan border border-fmnCyan/40";
+                } else {
+                    btn.className = "pub-filter-btn px-3 py-1.5 rounded-lg font-mono text-xs bg-slate-800 text-slate-300";
+                }
+            });
+            renderPublicationsList(type);
+        }
+
+        function copyBibtex(idx) {
+            const bib = window.SITE_DATA.publications[idx].bibtex;
+            const temp = document.createElement('textarea');
+            temp.value = bib;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            showToast("BibTeX citation copied to clipboard!");
+        }
+
+        /* -------------------------------------------------------------------
+         * 2. MULTIPAGE SPA ROUTER
+         * ------------------------------------------------------------------- */
+        function switchPage(pageId) {
+            document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+            const target = document.getElementById(`page-${pageId}`);
+            if (target) target.classList.add('active');
+
+            // Update desktop nav buttons
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                if (btn.dataset.nav === pageId) {
+                    btn.className = "nav-tab px-3.5 py-1.5 rounded-lg font-mono text-xs transition flex items-center gap-1.5 bg-fmnCyan/15 text-fmnCyan border border-fmnCyan/30";
+                } else {
+                    btn.className = "nav-tab px-3.5 py-1.5 rounded-lg font-mono text-xs text-slate-300 hover:text-white transition flex items-center gap-1.5";
+                }
+            });
+
+            // Update mobile nav buttons
+            document.querySelectorAll('.nav-tab-mobile').forEach(btn => {
+                if (btn.dataset.nav === pageId) {
+                    btn.className = "nav-tab-mobile shrink-0 px-3 py-1 rounded-md font-mono text-xs bg-fmnCyan/15 text-fmnCyan border border-fmnCyan/30";
+                } else {
+                    btn.className = "nav-tab-mobile shrink-0 px-3 py-1 rounded-md font-mono text-xs text-slate-400";
+                }
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if (pageId === 'overview' && glViewer) {
+                setTimeout(() => glViewer.resize(), 60);
+            }
+            if (pageId === 'research') {
+                drawContactMap();
+            }
+        }
+
+        /* -------------------------------------------------------------------
+         * 3. 3DMOL.JS INTERACTIVE PROTEIN STRUCTURE WORKBENCH
+         * ------------------------------------------------------------------- */
+        let glViewer = null;
+        let isMolSpinning = true;
+        let isBlueLightLit = false;
+        let currentStyleMode = 'cartoon';
+
+        function init3DProteinViewer() {
+            const container = document.getElementById('molViewerContainer');
+            if (!container || typeof $3Dmol === 'undefined') return;
+            glViewer = $3Dmol.createViewer(container, {
+                backgroundColor: '#080d1a',
+                antialias: true
+            });
+            loadPdbStructure('3UE6', 'Aureochrome-1 LOV Domain (Ph. tricornutum)');
+        }
+
+        function loadPdbStructure(pdbId, titleText) {
+            if (!glViewer) return;
+            const overlay = document.getElementById('molLoadingOverlay');
+            overlay.classList.remove('hidden');
+            document.getElementById('pdbTitleLabel').textContent = `PDB: ${pdbId.toUpperCase()} • ${titleText}`;
+
+            document.querySelectorAll('.pdb-preset-btn').forEach(b => {
+                b.className = "pdb-preset-btn px-2.5 py-1 rounded font-mono text-[11px] bg-slate-800 text-slate-300 hover:text-white";
+            });
+            const activeBtn = document.getElementById(`pdb-btn-${pdbId.toUpperCase()}`);
+            if (activeBtn) {
+                activeBtn.className = "pdb-preset-btn px-2.5 py-1 rounded font-mono text-[11px] bg-fmnCyan/20 text-fmnCyan border border-fmnCyan/40";
+            }
+
+            glViewer.clear();
+            $3Dmol.download(`pdb:${pdbId.toUpperCase()}`, glViewer, {}, function() {
+                applyCurrentMolRepresentation();
+                glViewer.zoomTo();
+                glViewer.render();
+                if (isMolSpinning) glViewer.spin('y', 0.6);
+                overlay.classList.add('hidden');
+            });
+        }
+
+        function loadCustomPdb() {
+            const val = document.getElementById('customPdbInput').value.trim();
+            if (val.length === 4) {
+                loadPdbStructure(val, 'Custom RCSB PDB Coordinate Structure');
+            } else {
+                showToast("Please enter a valid 4-character PDB ID (e.g., 1K4C, 4B0V)");
+            }
+        }
+
+        function applyCurrentMolRepresentation() {
+            if (!glViewer) return;
+            glViewer.removeAllSurfaces();
+            glViewer.setStyle({}, {}); // clear styles
+
+            if (currentStyleMode === 'cartoon') {
+                glViewer.setStyle({}, {
+                    cartoon: {
+                        colorscheme: isBlueLightLit ? 'cyanCarbon' : 'spectrum',
+                        thickness: 0.35
+                    }
+                });
+            } else if (currentStyleMode === 'plddt') {
+                // AlphaFold / B-factor confidence palette
+                glViewer.setStyle({}, {
+                    cartoon: {
+                        colorfunc: function(atom) {
+                            const b = atom.b || 50;
+                            if (b < 20) return '#0053d6';
+                            if (b < 35) return '#65cbf3';
+                            if (b < 50) return '#ffdb13';
+                            return '#ff7d45';
+                        }
+                    }
+                });
+            } else if (currentStyleMode === 'surface') {
+                glViewer.setStyle({}, { cartoon: { color: '#38bdf8', opacity: 0.75 } });
+                glViewer.addSurface($3Dmol.SurfaceType.VDW, {
+                    opacity: 0.38,
+                    color: isBlueLightLit ? '#38bdf8' : '#00f5d4'
+                });
+            }
+
+            // Highlight FMN or chromophore heteroatoms prominently
+            glViewer.setStyle({ hetflag: true }, {
+                stick: { radius: 0.25, colorscheme: 'yellowCarbon' },
+                sphere: { scale: 0.32, color: isBlueLightLit ? '#38bdf8' : '#00f5d4' }
+            });
+            glViewer.render();
+        }
+
+        function setMolStyle(mode) {
+            currentStyleMode = mode;
+            applyCurrentMolRepresentation();
+        }
+
+        function toggleMolSpin() {
+            if (!glViewer) return;
+            isMolSpinning = !isMolSpinning;
+            glViewer.spin(isMolSpinning ? 'y' : false, 0.6);
+            const btn = document.getElementById('spinToggleBtn');
+            btn.textContent = `Spin: ${isMolSpinning ? 'ON' : 'OFF'}`;
+        }
+
+        function toggleBlueLightExcitation() {
+            isBlueLightLit = !isBlueLightLit;
+            const card = document.getElementById('viewerCard');
+            const btnText = document.getElementById('blueLightBtnText');
+            const stateLbl = document.getElementById('photostateLabel');
+            const lambdaLbl = document.getElementById('lambdaLabel');
+
+            if (isBlueLightLit) {
+                card.classList.add('lit-state-active');
+                btnText.textContent = "450nm Active (Lit State LOV390)";
+                stateLbl.textContent = "Photoactivated Cys-FMN Adduct (LOV390)";
+                stateLbl.className = "text-sky-400";
+                lambdaLbl.textContent = "390 nm (C4a Thioether Bond + Jα Unfolding)";
+                showToast("450 nm Blue-Light Photoactivation: Cys-FMN adduct formed!");
+            } else {
+                card.classList.remove('lit-state-active');
+                btnText.textContent = "Excite 450nm (Dark State)";
+                stateLbl.textContent = "Dark Ground State (LOV447)";
+                stateLbl.className = "text-emerald-400";
+                lambdaLbl.textContent = "447 nm (Non-covalent FMN)";
+            }
+            applyCurrentMolRepresentation();
+        }
+
+        /* -------------------------------------------------------------------
+         * 4. INTERACTIVE RESIDUE CONTACT MAP & LANGEVIN DYNAMICS ENGINE
+         * ------------------------------------------------------------------- */
+        let contactMapMode = 'dark';
+
+        function switchSimTab(tab) {
+            const pContact = document.getElementById('sim-panel-contact');
+            const pLangevin = document.getElementById('sim-panel-langevin');
+            const bContact = document.getElementById('sim-tab-contact');
+            const bLangevin = document.getElementById('sim-tab-langevin');
+
+            if (tab === 'contact') {
+                pContact.classList.remove('hidden');
+                pLangevin.classList.add('hidden');
+                pLangevin.classList.remove('grid');
+                bContact.className = "px-3 py-1.5 rounded-lg font-mono text-xs bg-fmnCyan/20 text-fmnCyan border border-fmnCyan/30";
+                bLangevin.className = "px-3 py-1.5 rounded-lg font-mono text-xs text-slate-400 hover:text-white";
+                drawContactMap();
+            } else {
+                pContact.classList.add('hidden');
+                pLangevin.classList.remove('hidden');
+                pLangevin.classList.add('grid');
+                bLangevin.className = "px-3 py-1.5 rounded-lg font-mono text-xs bg-fmnCyan/20 text-fmnCyan border border-fmnCyan/30";
+                bContact.className = "px-3 py-1.5 rounded-lg font-mono text-xs text-slate-400 hover:text-white";
+            }
+        }
+
+        function setContactMapMode(mode) {
+            contactMapMode = mode;
+            ['dark', 'lit', 'his'].forEach(m => {
+                const btn = document.getElementById(`cm-btn-${m}`);
+                if (m === mode) {
+                    btn.className = "px-3 py-1.5 rounded-lg font-mono text-xs bg-fmnCyan/20 text-fmnCyan border border-fmnCyan/40";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg font-mono text-xs bg-slate-800 text-slate-300 border border-slate-700";
+                }
+            });
+
+            const badge = document.getElementById('cmStateBadge');
+            const interp = document.getElementById('cmBioInterpretation');
+            if (mode === 'dark') {
+                badge.textContent = "Dark State";
+                interp.textContent = "In the dark state, the C-terminal LOV domain cages the N-terminal bZIP domain via hydrophobic inter-domain contacts (off-diagonal cyan patches). Upon 450 nm photoexcitation, Cys-FMN adduct formation undocks the Jα helix.";
+            } else if (mode === 'lit') {
+                badge.textContent = "450nm Lit State";
+                interp.textContent = "Upon 450 nm illumination, Cys162–FMN covalent adduct formation triggers allosteric unfolding of the Jα helix and disrupts inhibitory bZIP–LOV off-diagonal contacts, promoting bZIP homodimerization.";
+            } else {
+                badge.textContent = "His-Mutant bZIP";
+                interp.textContent = "Highlighting the phylogenetic class-switching Histidine residue in the Ectocarpus siliculosus bZIP basic motif (residues 18–38), validated via site-directed mutagenesis and EMSA in J. Struct. Biol. (2025).";
+            }
+            drawContactMap();
+        }
+
+        function drawContactMap() {
+            const canvas = document.getElementById('contactMapCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const N = 60; // 60 coarse-grained segments representing 240 residues (4 res/bin)
+            const cell = canvas.width / N;
+
+            ctx.fillStyle = '#060911';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < N; i++) {
+                for (let j = 0; j < N; j++) {
+                    const dist = Math.abs(i - j);
+                    let intensity = 0;
+                    let color = null;
+
+                    // Diagonal backbone + secondary structure
+                    if (dist <= 2) {
+                        intensity = 0.9;
+                        if (i < 19) color = `rgba(56, 189, 248, ${intensity})`; // bZIP
+                        else if (i < 29) color = `rgba(251, 191, 36, ${intensity})`; // Linker
+                        else color = `rgba(0, 245, 212, ${intensity})`; // LOV
+                    }
+                    // LOV beta-sheet anti-parallel hairpins (bins 30..58)
+                    else if (i > 30 && j > 30 && Math.abs((i + j) - 88) <= 2) {
+                        color = 'rgba(0, 245, 212, 0.65)';
+                    }
+                    // Off-diagonal allosteric bZIP-LOV caging contacts (Dark state only)
+                    else if (contactMapMode === 'dark' && ((i >= 8 && i <= 15 && j >= 42 && j <= 52) || (j >= 8 && j <= 15 && i >= 42 && i <= 52))) {
+                        color = 'rgba(0, 245, 212, 0.55)';
+                    }
+                    // His-mutant DNA binding basic region highlight
+                    else if (contactMapMode === 'his' && i >= 4 && i <= 11 && j >= 4 && j <= 11) {
+                        color = 'rgba(244, 63, 94, 0.85)';
+                    }
+
+                    if (color) {
+                        ctx.fillStyle = color;
+                        ctx.fillRect(i * cell, j * cell, cell - 0.5, cell - 0.5);
+                    }
+                }
+            }
+
+            // Domain boundary grid lines
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.22)';
+            ctx.lineWidth = 1;
+            [19 * cell, 29 * cell].forEach(pos => {
+                ctx.beginPath(); ctx.moveTo(pos, 0); ctx.lineTo(pos, canvas.height); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, pos); ctx.lineTo(canvas.width, pos); ctx.stroke();
+            });
+        }
+
+        // Contact Map Hover Listener
+        document.addEventListener('DOMContentLoaded', () => {
+            const cmCanvas = document.getElementById('contactMapCanvas');
+            if (cmCanvas) {
+                cmCanvas.addEventListener('mousemove', (e) => {
+                    const rect = cmCanvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const resI = Math.min(240, Math.max(1, Math.floor((x / rect.width) * 240) + 1));
+                    const resJ = Math.min(240, Math.max(1, Math.floor((y / rect.height) * 240) + 1));
+
+                    const getDom = (r) => r <= 75 ? 'bZIP DNA-Binding' : (r <= 115 ? 'Hinge Linker' : 'LOV-FMN Core');
+                    const coupling = Math.abs(resI - resJ) < 8 ? '8.4 Å (Backbone Helix/Sheet)' :
+                        ((resI < 70 && resJ > 160) || (resJ < 70 && resI > 160)) ?
+                        (contactMapMode === 'dark' ? '6.2 Å (Allosteric Caging Contact)' : '19.8 Å (Photo-Undocked)') : '15.1 Å';
+
+                    document.getElementById('cmReadoutPrimary').textContent = `Residue Pair: Res ${resI} (${getDom(resI)}) ⇄ Res ${resJ} (${getDom(resJ)})`;
+                    document.getElementById('cmReadoutSecondary').textContent = `Estimated Cα–Cα Distance: ${coupling} | Direct Coevolution Coupling Score: ${(0.92 / (1 + Math.abs(resI - resJ) * 0.04)).toFixed(3)}`;
+                });
+            }
+        });
+
+        /* --- Live 2D Langevin Polymer Chain Simulator --- */
+        const N_BEADS = 18;
+        const beads = [];
+        let mdTemp = 300;
+        let mdSpring = 0.18;
+        let mdFriction = 0.08;
+        let hydrophobicCollapse = false;
+        let draggedBead = null;
+
+        function initLangevinPolymer() {
+            const canvas = document.getElementById('langevinCanvas');
+            if (!canvas) return;
+            beads.length = 0;
+            const startX = 110;
+            const startY = canvas.height / 2;
+            for (let i = 0; i < N_BEADS; i++) {
+                beads.push({
+                    x: startX + i * 20,
+                    y: startY + (Math.random() - 0.5) * 30,
+                    vx: 0,
+                    vy: 0,
+                    domain: i < 6 ? 'bZIP' : (i < 9 ? 'Linker' : 'LOV')
+                });
+            }
+
+            // Mouse/Touch SMD dragging
+            const getPos = (evt) => {
+                const r = canvas.getBoundingClientRect();
+                const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+                const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+                return {
+                    x: (clientX - r.left) * (canvas.width / r.width),
+                    y: (clientY - r.top) * (canvas.height / r.height)
+                };
+            };
+
+            canvas.addEventListener('mousedown', (e) => {
+                const pos = getPos(e);
+                beads.forEach(b => {
+                    if (Math.hypot(b.x - pos.x, b.y - pos.y) < 16) draggedBead = b;
+                });
+            });
+            canvas.addEventListener('mousemove', (e) => {
+                if (!draggedBead) return;
+                const pos = getPos(e);
+                draggedBead.x = pos.x;
+                draggedBead.y = pos.y;
+                draggedBead.vx = 0;
+                draggedBead.vy = 0;
+            });
+            window.addEventListener('mouseup', () => { draggedBead = null; });
+        }
+
+        function updateLangevinParams() {
+            mdTemp = parseFloat(document.getElementById('mdTempSlider').value);
+            mdSpring = parseFloat(document.getElementById('mdSpringSlider').value) / 100;
+            mdFriction = parseFloat(document.getElementById('mdFrictionSlider').value) / 100;
+            document.getElementById('mdTempVal').textContent = `${mdTemp} K`;
+            document.getElementById('mdSpringVal').textContent = mdSpring.toFixed(2);
+            document.getElementById('mdFrictionVal').textContent = `${mdFriction.toFixed(2)} ps⁻¹`;
+        }
+
+        function impulsePolymerChain() {
+            beads.forEach(b => {
+                b.vx += (Math.random() - 0.5) * 14;
+                b.vy += (Math.random() - 0.5) * 14;
+            });
+        }
+
+        function togglePolymerCollapse() {
+            hydrophobicCollapse = !hydrophobicCollapse;
+            const btn = document.getElementById('mdCollapseBtn');
+            btn.textContent = `Hydrophobic Collapse: ${hydrophobicCollapse ? 'ON' : 'OFF'}`;
+            btn.className = hydrophobicCollapse
+                ? "flex-1 py-2 rounded-lg font-mono text-xs bg-lovBlue/25 text-lovBlue border border-lovBlue/40"
+                : "flex-1 py-2 rounded-lg font-mono text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700";
+        }
+
+        function stepLangevinSimulation() {
+            const canvas = document.getElementById('langevinCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const eqDist = 22;
+            const noiseAmp = Math.sqrt(2 * mdFriction * (mdTemp / 150));
+
+            let totalEk = 0;
+            let totalEp = 0;
+
+            for (let i = 0; i < N_BEADS; i++) {
+                const b = beads[i];
+                if (b === draggedBead) continue;
+
+                let fx = 0, fy = 0;
+
+                // Harmonic bond with i-1 and i+1
+                [i - 1, i + 1].forEach(nbrIdx => {
+                    if (nbrIdx >= 0 && nbrIdx < N_BEADS) {
+                        const nbr = beads[nbrIdx];
+                        const dx = nbr.x - b.x;
+                        const dy = nbr.y - b.y;
+                        const r = Math.hypot(dx, dy) || 0.001;
+                        const stretch = r - eqDist;
+                        fx += mdSpring * stretch * (dx / r);
+                        fy += mdSpring * stretch * (dy / r);
+                        totalEp += 0.5 * mdSpring * stretch * stretch;
+                    }
+                });
+
+                // Non-bonded excluded volume & optional hydrophobic attraction
+                for (let j = 0; j < N_BEADS; j++) {
+                    if (Math.abs(i - j) > 1) {
+                        const other = beads[j];
+                        const dx = other.x - b.x;
+                        const dy = other.y - b.y;
+                        const r = Math.hypot(dx, dy) || 0.1;
+                        if (r < 16) {
+                            fx -= 0.45 * (16 - r) * (dx / r);
+                            fy -= 0.45 * (16 - r) * (dy / r);
+                        } else if (hydrophobicCollapse && r < 110) {
+                            fx += 0.006 * (dx / r);
+                            fy += 0.006 * (dy / r);
+                        }
+                    }
+                }
+
+                // Langevin stochastic thermostat + damping
+                fx += -mdFriction * b.vx + (Math.random() - 0.5) * noiseAmp;
+                fy += -mdFriction * b.vy + (Math.random() - 0.5) * noiseAmp;
+
+                b.vx += fx;
+                b.vy += fy;
+                b.x += b.vx;
+                b.y += b.vy;
+
+                // Soft reflective box boundaries
+                const pad = 20;
+                if (b.x < pad) { b.x = pad; b.vx *= -0.7; }
+                if (b.x > canvas.width - pad) { b.x = canvas.width - pad; b.vx *= -0.7; }
+                if (b.y < pad) { b.y = pad; b.vy *= -0.7; }
+                if (b.y > canvas.height - pad) { b.y = canvas.height - pad; b.vy *= -0.7; }
+
+                totalEk += 0.5 * (b.vx * b.vx + b.vy * b.vy);
+            }
+
+            // Render frame
+            ctx.fillStyle = '#060911';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw bonds
+            ctx.lineWidth = 3;
+            for (let i = 0; i < N_BEADS - 1; i++) {
+                ctx.strokeStyle = i < 6 ? '#38bdf8' : (i < 9 ? '#fbbf24' : '#00f5d4');
+                ctx.beginPath();
+                ctx.moveTo(beads[i].x, beads[i].y);
+                ctx.lineTo(beads[i + 1].x, beads[i + 1].y);
+                ctx.stroke();
+            }
+
+            // Draw monomer beads
+            for (let i = 0; i < N_BEADS; i++) {
+                const b = beads[i];
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 7.5, 0, Math.PI * 2);
+                ctx.fillStyle = b.domain === 'bZIP' ? '#38bdf8' : (b.domain === 'Linker' ? '#fbbf24' : '#00f5d4');
+                ctx.fill();
+                ctx.strokeStyle = '#060911';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+
+            // Compute observables: End-to-End distance & Radius of Gyration
+            const ree = Math.hypot(beads[N_BEADS - 1].x - beads[0].x, beads[N_BEADS - 1].y - beads[0].y) * 0.45;
+            let cmX = 0, cmY = 0;
+            beads.forEach(b => { cmX += b.x; cmY += b.y; });
+            cmX /= N_BEADS; cmY /= N_BEADS;
+            let rgSq = 0;
+            beads.forEach(b => { rgSq += (b.x - cmX) ** 2 + (b.y - cmY) ** 2; });
+            const rg = Math.sqrt(rgSq / N_BEADS) * 0.45;
+
+            document.getElementById('mdReeReadout').textContent = `${ree.toFixed(1)} Å`;
+            document.getElementById('mdRgReadout').textContent = `${rg.toFixed(1)} Å`;
+            document.getElementById('mdEkReadout').textContent = `${(totalEk * 0.15).toFixed(2)} k_BT`;
+            document.getElementById('mdEpReadout').textContent = `${(totalEp * 0.1).toFixed(2)} kcal/mol`;
+
+            requestAnimationFrame(stepLangevinSimulation);
+        }
+
+        /* -------------------------------------------------------------------
+         * 5. 4-IN-1 BIOPHYSICS & SCIENTIFIC BENCH CALCULATOR SUITE
+         * ------------------------------------------------------------------- */
+        function switchCalcTab(mode) {
+            ['sci', 'beer', 'kd', 'sdm'].forEach(m => {
+                const panel = document.getElementById(`calcpanel-${m}`);
+                const tab = document.getElementById(`calctab-${m}`);
+                if (m === mode) {
+                    panel.classList.remove('hidden');
+                    panel.classList.add('grid');
+                    tab.className = "px-3 py-1.5 rounded-lg font-mono text-xs bg-fmnCyan/20 text-fmnCyan border border-fmnCyan/40";
+                } else {
+                    panel.classList.add('hidden');
+                    panel.classList.remove('grid');
+                    tab.className = "px-3 py-1.5 rounded-lg font-mono text-xs text-slate-400 hover:text-white";
+                }
+            });
+        }
+
+        // Tab 1: Scientific Expression Evaluator
+        function insertSciToken(tok) {
+            const inp = document.getElementById('sciInputDisplay');
+            inp.value += tok;
+            inp.focus();
+        }
+        function clearSciDisplay() {
+            document.getElementById('sciInputDisplay').value = '';
+            document.getElementById('sciResultPreview').textContent = '= 0';
+        }
+        function backspaceSci() {
+            const inp = document.getElementById('sciInputDisplay');
+            inp.value = inp.value.slice(0, -1);
+        }
+        function clearSciHistory() {
+            document.getElementById('sciHistoryList').innerHTML = '';
+        }
+        function evaluateSciCalc() {
+            const raw = document.getElementById('sciInputDisplay').value.trim();
+            if (!raw) return;
+            try {
+                const parsed = raw
+                    .replace(/pi/gi, 'Math.PI')
+                    .replace(/sin\(/gi, 'Math.sin(')
+                    .replace(/cos\(/gi, 'Math.cos(')
+                    .replace(/tan\(/gi, 'Math.tan(')
+                    .replace(/ln\(/gi, 'Math.log(')
+                    .replace(/log\(/gi, 'Math.log10(')
+                    .replace(/sqrt\(/gi, 'Math.sqrt(')
+                    .replace(/\^/g, '**');
+                const val = Function(`"use strict"; return (${parsed})`)();
+                const formatted = Number.isFinite(val) ? (Math.abs(val) < 1e-3 || Math.abs(val) > 1e6 ? val.toExponential(4) : Number(val.toPrecision(8))) : 'Error';
+                document.getElementById('sciResultPreview').textContent = `= ${formatted}`;
+                const hist = document.getElementById('sciHistoryList');
+                const row = document.createElement('div');
+                row.className = "p-1.5 rounded bg-slateDeep border border-slate-800 flex justify-between";
+                row.innerHTML = `<span class="text-slate-400">${raw}</span><strong class="text-fmnCyan">= ${formatted}</strong>`;
+                hist.prepend(row);
+            } catch (err) {
+                document.getElementById('sciResultPreview').textContent = 'Syntax Error';
+            }
+        }
+
+        // Tab 2: Beer-Lambert & Pace Protein Extinction
+        function applyBeerPreset() {
+            const [eps, mw] = document.getElementById('beerPreset').value.split('|');
+            document.getElementById('beerEps').value = eps;
+            document.getElementById('beerMw').value = mw;
+            computeBeerLambert();
+        }
+        function computeBeerLambert() {
+            const A = parseFloat(document.getElementById('beerAbs').value) || 0;
+            const eps = parseFloat(document.getElementById('beerEps').value) || 1;
+            const l = parseFloat(document.getElementById('beerPath').value) || 1;
+            const mwKda = parseFloat(document.getElementById('beerMw').value) || 17;
+
+            const concM = A / (eps * l);
+            const concUm = concM * 1e6;
+            const mgMl = concM * (mwKda * 1000);
+
+            document.getElementById('beerOutputBox').innerHTML = `
+                <div>• Molar Concentration: <strong class="text-fmnCyan text-sm">${concUm.toFixed(2)} μM</strong> (${concM.toExponential(3)} M)</div>
+                <div>• Mass Concentration: <strong class="text-lovBlue text-sm">${mgMl.toFixed(3)} mg/mL</strong> (for MW = ${mwKda} kDa)</div>
+            `;
+        }
+        function computePaceExtinction() {
+            const nW = parseInt(document.getElementById('trpCount').value) || 0;
+            const nY = parseInt(document.getElementById('tyrCount').value) || 0;
+            const nC = parseInt(document.getElementById('cysCount').value) || 0;
+            const eps280 = nW * 5500 + nY * 1490 + nC * 125;
+            document.getElementById('paceOutputBox').innerHTML = `
+                <div>Estimated Protein ε₂₈₀ = <strong class="text-lovBlue text-sm">${eps280.toLocaleString()} M⁻¹cm⁻¹</strong></div>
+                <div class="text-[11px] text-slate-400 mt-1">Formula: (5500 × #Trp) + (1490 × #Tyr) + (125 × #Cystine)</div>
+            `;
+        }
+
+        // Tab 3: Kd ⇄ ΔG & FRET Efficiency
+        function computeKdThermo() {
+            const kdNm = parseFloat(document.getElementById('kdInputNm').value) || 1;
+            const T = parseFloat(document.getElementById('kdTempK').value) || 298.15;
+            const kdM = kdNm * 1e-9;
+            const dG_J = 8.31446 * T * Math.log(kdM);
+            const dG_kcal = dG_J / 4184;
+            const dG_kJ = dG_J / 1000;
+
+            document.getElementById('kdOutputBox').innerHTML = `
+                <div>• Gibbs Free Energy ΔG°: <strong class="text-fmnCyan text-sm">${dG_kcal.toFixed(2)} kcal/mol</strong> (${dG_kJ.toFixed(2)} kJ/mol)</div>
+                <div>• Association Constant K_a: <strong class="text-white">${(1 / kdM).toExponential(2)} M⁻¹</strong></div>
+            `;
+        }
+        function computeFretCalc() {
+            const r = parseFloat(document.getElementById('fretR').value) || 1;
+            const r0 = parseFloat(document.getElementById('fretR0').value) || 50;
+            const eff = 1 / (1 + Math.pow(r / r0, 6));
+            document.getElementById('fretOutputBox').innerHTML = `
+                <div>• FRET Transfer Efficiency E: <strong class="text-lovBlue text-sm">${(eff * 100).toFixed(2)}%</strong> (E = ${eff.toFixed(4)})</div>
+                <div>• Distance Ratio (r / R₀): <strong class="text-white">${(r / r0).toFixed(3)}</strong></div>
+            `;
+        }
+
+        // Tab 4: SDM Primer Tm & Buffer Dilution
+        function computeSdmPrimer() {
+            const seq = (document.getElementById('sdmSeqInput').value || '').toUpperCase().replace(/[^ATGC]/g, '');
+            const mism = parseInt(document.getElementById('sdmMismatches').value) || 0;
+            const N = seq.length;
+            if (N === 0) return;
+            const gcCount = (seq.match(/[GC]/g) || []).length;
+            const gcPct = (gcCount / N) * 100;
+            const mismatchPct = (mism / N) * 100;
+            // Stratagene QuikChange SDM formula: Tm = 81.5 + 0.41(%GC) - 675/N - %mismatch
+            const tm = 81.5 + 0.41 * gcPct - (675 / N) - mismatchPct;
+            const hasGcClamp = /[GC]$/.test(seq);
+
+            document.getElementById('sdmOutputBox').innerHTML = `
+                <div>• SDM Melting Temp (T_m): <strong class="text-fmnCyan text-sm">${tm.toFixed(1)} °C</strong> (Target ≥ 78 °C)</div>
+                <div>• Length: <strong>${N} nt</strong> | GC Content: <strong>${gcPct.toFixed(1)}%</strong> | 3' GC-Clamp: <strong class="${hasGcClamp ? 'text-emerald-400' : 'text-amber-400'}">${hasGcClamp ? 'YES' : 'NO'}</strong></div>
+            `;
+        }
+        function computeDilution() {
+            const c1 = parseFloat(document.getElementById('dilC1').value) || 1;
+            const c2 = parseFloat(document.getElementById('dilC2').value) || 0;
+            const v2 = parseFloat(document.getElementById('dilV2').value) || 0;
+            const v1 = (c2 * v2) / c1;
+            const bufferVol = Math.max(0, v2 - v1);
+
+            document.getElementById('dilOutputBox').innerHTML = `
+                <div>• Pipette Stock Volume (V₁): <strong class="text-lovBlue text-sm">${v1.toFixed(2)} mL</strong></div>
+                <div>• Add Buffer / ddH₂O: <strong class="text-fmnCyan text-sm">${bufferVol.toFixed(2)} mL</strong> (Total = ${v2} mL)</div>
+            `;
+        }
+
+        /* -------------------------------------------------------------------
+         * 6. MINI TACTICAL CHESS PUZZLE (BEYOND THE LAB)
+         * ------------------------------------------------------------------- */
+        let selectedSquare = null;
+        const initialChessGrid = [
+            ['♜', '♝', '♚', ''],
+            ['♟', '♟', '', '♟'],
+            ['', '', '♘', ''],
+            ['', '♕', '', '♔']
+        ];
+        let chessState = [];
+
+        function resetChessPuzzle() {
+            chessState = initialChessGrid.map(row => [...row]);
+            selectedSquare = null;
+            document.getElementById('chessStatusText').textContent = "White to move: Click the White Queen (♕) and jump to the top-right square for a Royal Fork / Check!";
+            document.getElementById('chessStatusText').className = "text-xs font-mono text-lovBlue";
+            renderMiniChess();
+        }
+
+        function renderMiniChess() {
+            const board = document.getElementById('miniChessBoard');
+            if (!board) return;
+            board.innerHTML = '';
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 4; c++) {
+                    const isDark = (r + c) % 2 === 1;
+                    const isSel = selectedSquare && selectedSquare.r === r && selectedSquare.c === c;
+                    const btn = document.createElement('button');
+                    btn.className = `w-full h-full flex items-center justify-center text-2xl transition ${
+                        isSel ? 'bg-fmnCyan/40 ring-2 ring-fmnCyan' : (isDark ? 'bg-slate-800' : 'bg-slate-700/60')
+                    }`;
+                    btn.textContent = chessState[r][c];
+                    btn.onclick = () => handleChessClick(r, c);
+                    board.appendChild(btn);
+                }
+            }
+        }
+
+        function handleChessClick(r, c) {
+            if (!selectedSquare) {
+                if (chessState[r][c] === '♕' || chessState[r][c] === '♘') {
+                    selectedSquare = { r, c };
+                    renderMiniChess();
+                }
+            } else {
+                const piece = chessState[selectedSquare.r][selectedSquare.c];
+                chessState[selectedSquare.r][selectedSquare.c] = '';
+                chessState[r][c] = piece;
+                selectedSquare = null;
+                renderMiniChess();
+
+                if (piece === '♕' && r === 0 && c === 3) {
+                    const status = document.getElementById('chessStatusText');
+                    status.textContent = "✓ Tactical Check! Qh8+ forks the Black King along the back rank! (Lichess 1438)";
+                    status.className = "text-xs font-mono text-fmnCyan font-bold";
+                }
+            }
+        }
+
+        /* -------------------------------------------------------------------
+         * 7. THEME TOGGLE & TOAST NOTIFICATION UTILITIES
+         * ------------------------------------------------------------------- */
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isLight = html.classList.toggle('light');
+            const icon = document.querySelector('#themeToggleBtn i');
+            icon.className = isLight ? 'fa-solid fa-moon text-xs text-slate-800' : 'fa-solid fa-sun text-xs';
+        }
+
+        function showToast(msg) {
+            const banner = document.getElementById('toastBanner');
+            document.getElementById('toastMessage').textContent = msg;
+            banner.classList.remove('hidden');
+            setTimeout(() => banner.classList.add('hidden'), 3200);
+        }
+
+        /* -------------------------------------------------------------------
+         * INITIALIZE EVERYTHING ON WINDOW LOAD
+         * ------------------------------------------------------------------- */
+        window.onload = function() {
+            renderAllContent();
+            init3DProteinViewer();
+            drawContactMap();
+            initLangevinPolymer();
+            stepLangevinSimulation();
+            computeBeerLambert();
+            computePaceExtinction();
+            computeKdThermo();
+            computeFretCalc();
+            computeSdmPrimer();
+            computeDilution();
+            resetChessPuzzle();
+        };
+    </script>
+</body>
+</html>
