@@ -6,10 +6,10 @@
     <title>Debarshi Bose | Structural Biochemistry, Photobiology & Computational Biophysics</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Space Grotesk, Inter, JetBrains Mono -->
+    <!-- Google Fonts: Merriweather Sans, Inter, JetBrains Mono, Space Grotesk -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Merriweather+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- 3Dmol.js for Live Interactive WebGL Protein Rendering -->
@@ -21,20 +21,28 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Space Grotesk', 'sans-serif'],
+                        sans: ['"Merriweather Sans"', 'Arial', 'sans-serif'],     /* Springer Nature style body */
+                        display: ['"Merriweather Sans"', 'sans-serif'],  /* Journal headings */
                         mono: ['JetBrains Mono', 'monospace'],
                     },
                     colors: {
-                        obsidian: '#060911',
-                        slateDeep: '#0c1220',
-                        slateCard: '#111a2e',
+                        obsidian: '#000000',
+                        slateDeep: '#07090d',
+                        slateCard: '#0b0f16',
                         fmnCyan: '#00f5d4',
                         lovBlue: '#38bdf8',
                         afVeryHigh: '#0053d6',
                         afConfident: '#65cbf3',
                         afLow: '#ffdb13',
-                        afVeryLow: '#ff7d45'
+                        afVeryLow: '#ff7d45',
+                        /* Neutral near-black shades replacing the bluish slate panels/borders */
+                        slate: {
+                            600: '#2a303c',
+                            700: '#1a1f29',
+                            800: '#0f131a',
+                            900: '#07090d',
+                            950: '#000000'
+                        }
                     }
                 }
             }
@@ -43,9 +51,9 @@
 
     <style>
         :root {
-            --bg-primary: #060911;
-            --bg-secondary: #0c1220;
-            --bg-card: rgba(17, 26, 46, 0.78);
+            --bg-primary: #000000;
+            --bg-secondary: #07090d;
+            --bg-card: rgba(9, 12, 18, 0.82);
             --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
             --border-color: rgba(56, 189, 248, 0.16);
@@ -67,6 +75,7 @@
         body {
             background-color: var(--bg-primary);
             color: var(--text-primary);
+            font-family: 'Merriweather Sans', Arial, sans-serif; /* Nature / Springer Nature web standard */
             overflow-x: hidden;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
@@ -108,7 +117,7 @@
             height: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: #060911;
+            background: #000000;
         }
         ::-webkit-scrollbar-thumb {
             background: #1e293b;
@@ -125,7 +134,7 @@
             height: 440px;
             border-radius: 0.75rem;
             overflow: hidden;
-            background: radial-gradient(circle at center, #111c35 0%, #070b14 100%);
+            background: radial-gradient(circle at center, #0b0f16 0%, #000000 100%);
         }
         #molViewerContainer canvas {
             border-radius: 0.75rem;
@@ -158,8 +167,8 @@
                 labBrand: "dbose // structural biophysics",
                 role: "Postgraduate Researcher in Structural Biochemistry & Computational Biophysics",
                 institution: "Presidency University, Kolkata, India",
-                solabStream: "from sequences ➔ photochemistry ➔ conformational dynamics ➔ optogenetic scaffolds ➔ all-atom simulations",
-                bioSummary: "Investigating the molecular choreography of blue-light photoreceptors (Aureochromes & LOV/PAS domains) and transcription factors. My work bridges wet-lab protein engineering (rational mutagenesis, IMAC/SEC purification, fluorescence & UV-Vis spectroscopy, EMSA) with computational biophysics (all-atom MD in GROMACS, molecular docking, and Langevin polymer dynamics).",
+                solabStream: "from sequences ➔ photochemistry ➔ conformational dynamics ➔ all-atom simulations ➔ experimental validation ➔ scaffold designing",
+                bioSummary: "Investigating the molecular mechanism of blue-light photoreceptors (Aureochromes & LOV/PAS domains) and transcription factors. My work bridges wet-lab protein engineering (rational mutagenesis, IMAC/SEC purification, fluorescence & UV-Vis spectroscopy, EMSA) with computational biophysics (all-atom MD in GROMACS, molecular docking, and Langevin polymer dynamics).",
                 location: "Kolkata, West Bengal, India",
                 email: "dbose2709@gmail.com",
                 orcid: "0009-0002-3014-1771",
@@ -172,7 +181,7 @@
                 { label: "CSIR-UGC NET JRF", value: "AIR 26", sub: "99.92 Percentile (2026)" },
                 { label: "M.Sc. Life Sciences", value: "9.40 / 10", sub: "Presidency University (2025–2027)" },
                 { label: "IIT-JAM Biotech", value: "AIR 98", sub: "Top 1% Nationwide (2025)" },
-                { label: "Publications", value: "2 + 2", sub: "2 Peer-Reviewed + 2 Acknowledged" }
+                { label: "Publications", value: "2", sub: "1 Research Article (Co-author) + 1 Review Article (First-author) [Peer-Reviewed]" }
             ],
             news: [
                 {
@@ -243,14 +252,14 @@
                     degree: "M.Sc. in Life Sciences",
                     school: "Presidency University, Kolkata, India",
                     period: "2025 – 2027",
-                    score: "CGPA: 9.40 / 10.00",
+                    score: "CGPA (1st Year): 9.40 / 10.00",
                     details: "Master's thesis research on ionic strength & salt concentration effects on LOV-FMN photochemistry and PAS domain dynamics."
                 },
                 {
                     degree: "B.Sc. (Hons.) in Life Sciences",
                     school: "Presidency University, Kolkata, India",
                     period: "2022 – 2025",
-                    score: "GPA: 8.95 / 10.00",
+                    score: "GPA (Major): 8.95 / 10.00",
                     details: "Undergraduate research in structural biochemistry, optogenetics, and computational biophysics."
                 }
             ],
@@ -447,18 +456,12 @@
     <!-- ===================================================================== -->
     <header class="sticky top-0 z-50 border-b border-sky-500/15 bg-obsidian/85 backdrop-blur-xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
-            <!-- Brand Identity -->
+            <!-- Brand Identity (icon + research interest only) -->
             <a href="#overview" onclick="switchPage('overview')" class="flex items-center gap-3 group focus:outline-none">
                 <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-fmnCyan/20 to-lovBlue/20 border border-fmnCyan/40 flex items-center justify-center shadow-inner group-hover:scale-105 transition">
                     <i class="fa-solid fa-dna text-fmnCyan text-sm"></i>
                 </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span id="nav-brand-name" class="font-mono font-bold tracking-tight text-base text-white group-hover:text-fmnCyan transition">dbose</span>
-                        <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-fmnCyan/10 text-fmnCyan border border-fmnCyan/30">BIOPHYSICS</span>
-                    </div>
-                    <p class="text-[11px] font-mono text-slate-400 hidden sm:block">Structural Biochemistry & Biophysics</p>
-                </div>
+                <p class="text-xs sm:text-sm font-mono text-slate-300 group-hover:text-fmnCyan transition">Structural Biochemistry & Biophysics</p>
             </a>
 
             <!-- Multipage Navigation Tabs -->
@@ -526,7 +529,7 @@
                     <!-- Solab.org Signature Lowercase Stream Header -->
                     <div class="space-y-3">
                         <p id="hero-stream" class="font-mono text-xs sm:text-sm text-lovBlue tracking-wide uppercase"></p>
-                        <h1 id="hero-name" class="font-display text-4xl sm:text-6xl font-bold tracking-tight text-white leading-none"></h1>
+                        <h1 id="hero-name" class="font-display text-4xl sm:text-6xl font-normal tracking-tight text-white leading-none"></h1>
                         <p id="hero-role" class="text-lg sm:text-xl text-slate-300 font-medium"></p>
                     </div>
 
@@ -543,7 +546,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                         <button onclick="switchPage('research')" class="glass-card p-4 rounded-xl text-left group">
                             <div class="flex items-center justify-between text-xs font-mono text-fmnCyan mb-1">
-                                <span>02 • FRONTIERS</span>
+                                <span>FRONTIERS</span>
                                 <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
                             </div>
                             <div class="font-display font-semibold text-white text-sm">Allostery, LOV & MD</div>
@@ -551,7 +554,7 @@
                         </button>
                         <button onclick="switchPage('publications')" class="glass-card p-4 rounded-xl text-left group">
                             <div class="flex items-center justify-between text-xs font-mono text-lovBlue mb-1">
-                                <span>03 • PAPERS</span>
+                                <span>SCHOLARLY WORKS</span>
                                 <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
                             </div>
                             <div class="font-display font-semibold text-white text-sm">Algal Res. & J. Struct. Biol.</div>
@@ -559,7 +562,7 @@
                         </button>
                         <button onclick="switchPage('suite')" class="glass-card p-4 rounded-xl text-left group">
                             <div class="flex items-center justify-between text-xs font-mono text-amber-400 mb-1">
-                                <span>04 • BENCH SUITE</span>
+                                <span>BENCH SUITE</span>
                                 <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
                             </div>
                             <div class="font-display font-semibold text-white text-sm">Biophysics Calculators</div>
@@ -590,9 +593,10 @@
                         <!-- Preset PDB Switcher + Custom PDB Fetch -->
                         <div class="flex flex-wrap items-center justify-between gap-1.5">
                             <div class="flex flex-wrap gap-1">
-                                <button onclick="loadPdbStructure('3UE6', 'Aureochrome-1 LOV Domain (Ph. tricornutum)')" id="pdb-btn-3UE6" class="pdb-preset-btn px-2.5 py-1 rounded font-mono text-[11px] bg-fmnCyan/20 text-fmnCyan border border-fmnCyan/40">3UE6 (Aureo1 LOV)</button>
-                                <button onclick="loadPdbStructure('2V0W', 'Avena sativa LOV2 Optogenetic Switch')" id="pdb-btn-2V0W" class="pdb-preset-btn px-2.5 py-1 rounded font-mono text-[11px] bg-slate-800 text-slate-300 hover:text-white">2V0W (AsLOV2)</button>
-                                <button onclick="loadPdbStructure('1NWZ', 'Photoactive Yellow Protein (PAS Prototype)')" id="pdb-btn-1NWZ" class="pdb-preset-btn px-2.5 py-1 rounded font-mono text-[11px] bg-slate-800 text-slate-300 hover:text-white">1NWZ (PAS Core)</button>
+                                <button onclick="loadPdbStructure('3UE6', 'Aureochrome-1 LOV Domain (Ph. tricornutum)', true)" id="pdb-btn-3UE6" class="pdb-preset-btn px-2.5 py-1 rounded font-mono text-[11px] bg-fmnCyan/20 text-fmnCyan border border-fmnCyan/40">3UE6 (Aureo1 LOV)</button>
+                                <button onclick="loadPdbStructure('2V0W', 'Avena sativa LOV2 Optogenetic Switch', true)" id="pdb-btn-2V0W" class="pdb-preset-btn px-2.5 py-1 rounded font-mono text-[11px] bg-slate-800 text-slate-300 hover:text-white">2V0W (AsLOV2)</button>
+                                <button onclick="loadPdbStructure('1NWZ', 'Photoactive Yellow Protein (PAS Prototype)', true)" id="pdb-btn-1NWZ" class="pdb-preset-btn px-2.5 py-1 rounded font-mono text-[11px] bg-slate-800 text-slate-300 hover:text-white">1NWZ (PAS Core)</button>
+                                <button onclick="loadPdbStructure('1YSA', 'GCN4 bZIP Domain – DNA Complex', true)" id="pdb-btn-1YSA" class="pdb-preset-btn px-2.5 py-1 rounded font-mono text-[11px] bg-slate-800 text-slate-300 hover:text-white">1YSA (bZIP–DNA)</button>
                             </div>
                             <div class="flex items-center gap-1">
                                 <input id="customPdbInput" type="text" maxlength="4" placeholder="PDB ID" class="w-16 px-2 py-1 rounded bg-obsidian border border-slate-700 font-mono text-[11px] text-white uppercase focus:border-fmnCyan focus:outline-none">
@@ -1270,7 +1274,6 @@
             const d = window.SITE_DATA;
 
             // Hero & Profile
-            document.getElementById('nav-brand-name').textContent = d.profile.handle || 'dbose';
             document.getElementById('hero-status').textContent = d.profile.statusText;
             document.getElementById('hero-stream').textContent = d.profile.solabStream;
             document.getElementById('hero-name').textContent = d.profile.name;
@@ -1550,18 +1553,19 @@
         let isMolSpinning = true;
         let isBlueLightLit = false;
         let currentStyleMode = 'cartoon';
+        let currentPhotoactive = true;   // true only for the LOV/PAS presets (3UE6, 2V0W, 1NWZ)
 
         function init3DProteinViewer() {
             const container = document.getElementById('molViewerContainer');
             if (!container || typeof $3Dmol === 'undefined') return;
             glViewer = $3Dmol.createViewer(container, {
-                backgroundColor: '#080d1a',
+                backgroundColor: '#000000',
                 antialias: true
             });
-            loadPdbStructure('3UE6', 'Aureochrome-1 LOV Domain (Ph. tricornutum)');
+            loadPdbStructure('3UE6', 'Aureochrome-1 LOV Domain (Ph. tricornutum)', true);
         }
 
-        function loadPdbStructure(pdbId, titleText) {
+        function loadPdbStructure(pdbId, titleText, isPreset = false) {
             if (!glViewer) return;
             const overlay = document.getElementById('molLoadingOverlay');
             overlay.classList.remove('hidden');
@@ -1570,10 +1574,17 @@
             document.querySelectorAll('.pdb-preset-btn').forEach(b => {
                 b.className = "pdb-preset-btn px-2.5 py-1 rounded font-mono text-[11px] bg-slate-800 text-slate-300 hover:text-white";
             });
-            const activeBtn = document.getElementById(`pdb-btn-${pdbId.toUpperCase()}`);
-            if (activeBtn) {
-                activeBtn.className = "pdb-preset-btn px-2.5 py-1 rounded font-mono text-[11px] bg-fmnCyan/20 text-fmnCyan border border-fmnCyan/40";
+            if (isPreset) {
+                const activeBtn = document.getElementById(`pdb-btn-${pdbId.toUpperCase()}`);
+                if (activeBtn) {
+                    activeBtn.className = "pdb-preset-btn px-2.5 py-1 rounded font-mono text-[11px] bg-fmnCyan/20 text-fmnCyan border border-fmnCyan/40";
+                }
             }
+
+            // Only the LOV/PAS presets are photoactive; 1YSA and any fetched ID are not.
+            currentPhotoactive = (isPreset && ['3UE6', '2V0W', '1NWZ'].includes(pdbId.toUpperCase()));
+            isBlueLightLit = false;   // always start a new structure in the dark state
+            updatePhotoUI();
 
             glViewer.clear();
             $3Dmol.download(`pdb:${pdbId.toUpperCase()}`, glViewer, {}, function() {
@@ -1588,7 +1599,7 @@
         function loadCustomPdb() {
             const val = document.getElementById('customPdbInput').value.trim();
             if (val.length === 4) {
-                loadPdbStructure(val, 'Custom RCSB PDB Coordinate Structure');
+                loadPdbStructure(val, 'Custom RCSB PDB Coordinate Structure', false);
             } else {
                 showToast("Please enter a valid 4-character PDB ID (e.g., 1K4C, 4B0V)");
             }
@@ -1648,20 +1659,32 @@
             btn.textContent = `Spin: ${isMolSpinning ? 'ON' : 'OFF'}`;
         }
 
-        function toggleBlueLightExcitation() {
-            isBlueLightLit = !isBlueLightLit;
+        function updatePhotoUI() {
             const card = document.getElementById('viewerCard');
+            const btn = document.getElementById('blueLightBtn');
             const btnText = document.getElementById('blueLightBtnText');
             const stateLbl = document.getElementById('photostateLabel');
             const lambdaLbl = document.getElementById('lambdaLabel');
 
+            if (!currentPhotoactive) {
+                card.classList.remove('lit-state-active');
+                btn.disabled = true;
+                btn.classList.add('opacity-40', 'cursor-not-allowed');
+                btnText.textContent = "450nm N/A (Non-photoreceptor)";
+                stateLbl.textContent = "N/A (no LOV/PAS chromophore)";
+                stateLbl.className = "text-slate-400";
+                lambdaLbl.textContent = "—";
+                return;
+            }
+
+            btn.disabled = false;
+            btn.classList.remove('opacity-40', 'cursor-not-allowed');
             if (isBlueLightLit) {
                 card.classList.add('lit-state-active');
                 btnText.textContent = "450nm Active (Lit State LOV390)";
                 stateLbl.textContent = "Photoactivated Cys-FMN Adduct (LOV390)";
                 stateLbl.className = "text-sky-400";
                 lambdaLbl.textContent = "390 nm (C4a Thioether Bond + Jα Unfolding)";
-                showToast("450 nm Blue-Light Photoactivation: Cys-FMN adduct formed!");
             } else {
                 card.classList.remove('lit-state-active');
                 btnText.textContent = "Excite 450nm (Dark State)";
@@ -1669,6 +1692,16 @@
                 stateLbl.className = "text-emerald-400";
                 lambdaLbl.textContent = "447 nm (Non-covalent FMN)";
             }
+        }
+
+        function toggleBlueLightExcitation() {
+            if (!currentPhotoactive) {
+                showToast("450 nm excitation is only available for the LOV/PAS presets.");
+                return;
+            }
+            isBlueLightLit = !isBlueLightLit;
+            updatePhotoUI();
+            if (isBlueLightLit) showToast("450 nm Blue-Light Photoactivation: Cys-FMN adduct formed!");
             applyCurrentMolRepresentation();
         }
 
@@ -1732,7 +1765,7 @@
             const N = 60; // 60 coarse-grained segments representing 240 residues (4 res/bin)
             const cell = canvas.width / N;
 
-            ctx.fillStyle = '#060911';
+            ctx.fillStyle = '#000000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             for (let i = 0; i < N; i++) {
@@ -1944,7 +1977,7 @@
             }
 
             // Render frame
-            ctx.fillStyle = '#060911';
+            ctx.fillStyle = '#000000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             // Draw bonds
@@ -1964,7 +1997,7 @@
                 ctx.arc(b.x, b.y, 7.5, 0, Math.PI * 2);
                 ctx.fillStyle = b.domain === 'bZIP' ? '#38bdf8' : (b.domain === 'Linker' ? '#fbbf24' : '#00f5d4');
                 ctx.fill();
-                ctx.strokeStyle = '#060911';
+                ctx.strokeStyle = '#000000';
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
             }
